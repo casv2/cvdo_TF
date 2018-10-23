@@ -1,0 +1,334 @@
+Model GAP_6, Test vacancy-energy
+Test run at 2018-09-01 12:36
+
+model file: ../../../models/W/GAP_6/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2013_6_24_60_12_58_8_327"',
+                                               param_filename='gp.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2013_6_24_60_12_58_8_327"',
+                                               param_filename='gp.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/W/vacancy-energy/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import BodyCenteredCubic
+from ase.calculators.neighborlist import NeighborList
+from numpy import dot, sum, amax
+from math import sqrt
+
+from quippy import Potential
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model
+
+a0 = 3.16 # initial guess at lattice constant, cell will be relaxed below
+fmax = 1e-3 # maximum force following relaxtion [eV/A]
+N = 3 # number of unit cells in each direction
+remove_index = 0 # which atom to remove
+
+if not hasattr(model, 'bulk_reference_216'):
+    # set up the a
+    bulk = BodyCenteredCubic(symbol='W', latticeconstant=a0)
+
+    # specify that we will use model.calculator to compute forces, energies and stresses
+    bulk.set_calculator(model.calculator)
+
+    # use one of the routines from utilities module to relax the initial
+    # unit cell and atomic positions
+    bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+    bulk *= (N, N, N)
+    bulk_energy = bulk.get_potential_energy()
+else:
+    bulk = model.bulk_reference_216
+    bulk_energy = bulk.get_potential_energy()
+
+def vacancy_energy(bulk, remove_index=0):
+    Nat = bulk.get_number_of_atoms()
+    vac = bulk.copy()
+    vac.set_calculator(bulk.get_calculator())
+
+    nl = NeighborList([a0*sqrt(3.0)/4*0.6]*len(bulk), self_interaction=False, bothways=True)
+    nl.update(bulk)
+    indices, offsets = nl.get_neighbors(remove_index)
+    offset_factor=0.13
+    for i, offset in zip(indices, offsets):
+       ri = vac.positions[remove_index] - (vac.positions[i] + dot(offset, vac.get_cell()))
+       vac.positions[i] += offset_factor*ri
+       offset_factor += 0.01
+
+    del vac[remove_index] # remove an atom to introduce a vacancy
+
+    # perturb positions
+    vac.rattle(0.01)
+
+    ##
+    try:
+        model.calculator.set(local_gap_error='local_gap_error')
+        vac.get_potential_energy()
+        unrelaxed_local_gap_error_max = amax(model.calculator.results['local_gap_error'])
+        unrelaxed_local_gap_error_sum = sum(model.calculator.results['local_gap_error'])
+    except:
+        unrelaxed_local_gap_error_max = None
+        unrelaxed_local_gap_error_sum = None
+    if isinstance(model, Potential):
+        model.calculator.set(local_gap_error='')
+
+    # relax atom positions, holding cell fixed
+    vac = relax_atoms(vac, tol=fmax, traj_file="model-"+model.name+"-test-vacancy-energy.opt.xyz")
+
+    vac.write("model-"+model.name+"test-vacancy-energy-relaxed.xyz")
+
+    ##
+    try:
+        model.calculator.set(local_gap_error='local_gap_error')
+        vac.get_potential_energy()
+        relaxed_local_gap_error_max = amax(model.calculator.results['local_gap_error'])
+        relaxed_local_gap_error_sum = sum(model.calculator.results['local_gap_error'])
+    except:
+        relaxed_local_gap_error_max = None
+        relaxed_local_gap_error_sum = None
+    if isinstance(model, Potential):
+        model.calculator.set(local_gap_error='')
+    ##
+
+    # compute vacancy formation energy as difference of bulk and vac energies
+    print 'bulk cell energy', bulk_energy
+    print 'vacancy cell energy', vac.get_potential_energy()
+    e_form = vac.get_potential_energy() - bulk_energy*vac.get_number_of_atoms()/bulk.get_number_of_atoms()
+    print 'vacancy formation energy', e_form
+    return (e_form, unrelaxed_local_gap_error_max, unrelaxed_local_gap_error_sum, relaxed_local_gap_error_max, relaxed_local_gap_error_sum)
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+
+(e_form, unrelaxed_local_gap_error_max, unrelaxed_local_gap_error_sum, relaxed_local_gap_error_max, relaxed_local_gap_error_sum) = vacancy_energy(bulk, remove_index=remove_index)
+properties = {'vacancy_energy': e_form,
+              'vacancy_unrelaxed_local_gap_error_max' : unrelaxed_local_gap_error_max,
+              'vacancy_unrelaxed_local_gap_error_sum' : unrelaxed_local_gap_error_sum,
+              'vacancy_relaxed_local_gap_error_max' : relaxed_local_gap_error_max,
+              'vacancy_relaxed_local_gap_error_sum' : relaxed_local_gap_error_sum }
+============================================================
+/Users/Cas/.local/lib/python2.7/site-packages/ase/calculators/neighborlist.py:5: UserWarning: Moved to ase.neighborlist
+  warnings.warn('Moved to ase.neighborlist')
+relax_atoms_cell using method lbfgs_precon
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  12:37:26      -22.378330       0.0000       0.0380
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.00 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=2.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=4.24 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): got r_NN=2.737 in 0.00159311294556 s
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000198125839233 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000180006027222 s ---
+INFO:ase.optimize.precon:--- remove zeros in 6.79492950439e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00120687484741 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.0011579990387 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0969175298921796, mu_c=46.01133564326891
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000190019607544 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000169992446899 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 7.00950622559e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 6.00814819336e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000641107559204 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000998973846436 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00301384925842 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000324964523315 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   1  12:37:27      -22.389754       0.0000       0.0006
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  12:37:32     -589.844238       0.5773
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.00 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=2.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=4.24 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): got r_NN=2.753 in 0.0103600025177 s
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00336408615112 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000316143035889 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000167846679688 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00125312805176 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00261497497559 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=1.572627244586131, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.0111329555511 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.00040602684021 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 0.000145196914673 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000176906585693 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00138807296753 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00424909591675 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.0198030471802 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.00193095207214 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   1  12:37:41     -590.009805       0.1492
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00300908088684 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000255823135376 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000144958496094 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00107908248901 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00200295448303 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=1.5809048052148782, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00292897224426 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000289916992188 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 0.000102043151855 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000140190124512 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00105714797974 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00202107429504 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00762915611267 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.00118398666382 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   2  12:37:50     -590.021343       0.0568
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00310492515564 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000509023666382 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.00023889541626 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00355911254883 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00230407714844 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=1.5841145345254575, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00507521629333 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000431060791016 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 0.000167846679688 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000218152999878 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00249481201172 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00322389602661 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.0131299495697 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.00185799598694 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   3  12:37:57     -590.023302       0.0175
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.0133481025696 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.00059700012207 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000253915786743 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00177001953125 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00377702713013 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=1.584256205984365, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00297713279724 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000353813171387 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 0.000138998031616 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000168085098267 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00141286849976 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00469088554382 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.0110630989075 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.00157499313354 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   4  12:38:05     -590.023437       0.0057
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00322103500366 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000370979309082 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000164031982422 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00117802619934 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00218892097473 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=1.584166470362195, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00290608406067 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000261068344116 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 8.79764556885e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000138998031616 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00119090080261 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.0022931098938 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00800085067749 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.00118708610535 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   5  12:38:13     -590.023457       0.0019
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00234508514404 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000169038772583 s ---
+INFO:ase.optimize.precon:--- remove zeros in 8.20159912109e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000657796859741 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00119090080261 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=1.5841722646871896, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00174999237061 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000150918960571 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 5.69820404053e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 7.5101852417e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000607967376709 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00118207931519 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.0043420791626 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000710010528564 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   6  12:38:19     -590.023459       0.0010
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00316786766052 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000518083572388 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000231027603149 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00168490409851 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00297689437866 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=1.5841898208192153, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.0121810436249 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000441074371338 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 0.000154972076416 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.000185012817383 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00147819519043 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00289106369019 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.0189518928528 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.00169706344604 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   7  12:38:25     -590.023460       0.0003
+bulk cell energy -604.523359539
+vacancy cell energy -590.023459509
+vacancy formation energy 3.30502300077
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'vacancy_unrelaxed_local_gap_error_max': None, 'vacancy_relaxed_local_gap_error_max': None, 'vacancy_relaxed_local_gap_error_sum': None, 'vacancy_unrelaxed_local_gap_error_sum': None, 'vacancy_energy': 3.3050230007733035}
+============================================================

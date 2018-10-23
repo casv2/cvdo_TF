@@ -1,0 +1,50 @@
+Model SW, Test vac-path-no-relax-configs
+Test run at 2018-09-06 10:47
+
+model file: ../../../models/Si/SW/model.py
+============================================================
+# Model for Stillinger-Weber with original parameters for Si (Z=14)
+
+from quippy import Potential
+
+# A module defining a module needs to define only one variable,
+# named `calculator`, which should be an instance of the ase.calculator.Calculator,
+# a subclass of this, or a compatible class implementing the calculator interface.
+
+calculator = Potential('IP SW', param_str="""
+<SW_params n_types="1">
+<per_type_data type="1" atomic_num="14" />
+<per_pair_data atnum_i="14" atnum_j="14" AA="7.049556277" BB="0.6022245584"
+      p="4" q="0" a="1.80" sigma="2.0951" eps="2.1675" />
+<per_triplet_data atnum_c="14" atnum_j="14" atnum_k="14"
+      lambda="21.0" gamma="1.20" eps="2.1675" />
+</SW_params>
+""")
+
+no_checkpoint = True
+name = 'SW'
+
+============================================================
+test file: ../../../tests/Si/vac-path-no-relax-configs/test.py
+============================================================
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+ats = ase.io.read(os.path.join(os.path.dirname(__file__),"model-GAP-vacancy-path.neb.xyz"),":")
+Es = []
+for at in ats:
+    at.set_calculator(model.calculator)
+    e = at.get_potential_energy()
+    Es.append(e)
+properties = {'vacancy-path' : Es}============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'vacancy-path': [-268.16028292229976, -268.19846329151795, -268.3475267172214, -268.51659774387093, -268.63210856920205, -268.67129849394087, -268.63232342215844, -268.5170162129574, -268.3480526090239, -268.1988461810203, -268.16025461962744]}
+============================================================

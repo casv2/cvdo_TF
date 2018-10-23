@@ -1,0 +1,157 @@
+Model GAP, Test bulk_fcc
+Test run at 2018-08-31 15:57
+
+model file: ../../../models/Si/GAP/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2017_6_17_60_4_3_56_165"',
+                                               param_filename='gp_iter6_sparse9k.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2017_6_17_60_4_3_56_165"',
+                                               param_filename='gp_iter6_sparse9k.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Si/bulk_fcc/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import FaceCenteredCubic
+
+import lattice_cubic
+
+# the current model
+import model 
+
+a0 = (15.0*4)**(1.0/3.0)# initial guess at lattice constant, cell will be relaxed below
+
+# set up the a
+bulk = FaceCenteredCubic(symbol='Si', latticeconstant=a0)
+
+(E_vs_V) = lattice_cubic.do_lattice(bulk, elastic=False)
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'fcc_E_vs_V': E_vs_V }
+============================================================
+relax_atoms_cell using method lbfgs_precon
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  15:58:42     -650.325094       0.0000       0.0067
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.00 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=2.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=4.24 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): got r_NN=2.768 in 0.0635018348694 s
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.0114440917969 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000235080718994 s ---
+INFO:ase.optimize.precon:--- remove zeros in 9.20295715332e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00286602973938 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00178694725037 s ---
+INFO:ase.optimize.precon:mu (0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=3.7969826472864514
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.0108180046082 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000244855880737 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 8.82148742676e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 9.48905944824e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00194191932678 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00175094604492 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.0168559551239 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.00042200088501 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   1  15:58:46     -650.328972       0.0000       0.0003
+relaxed bulk
+4
+Lattice="3.8889600682457077 0.0 0.0 0.0 3.8889600682457077 0.0 0.0 0.0 3.8889600682457077" Properties=species:S:1:pos:R:3:Z:I:1:forces:R:3 energy=-650.328971548 stress="-0.0002783048186575264 1.697900571669322e-35 0.0 1.697900571669322e-35 -0.0002783048186575263 1.0611878572933263e-36 0.0 1.0611878572933263e-36 -0.00027830481865752637" pbc="T T T"
+Si       0.00000000       0.00000000       0.00000000       14       0.00000000       0.00000000       0.00000000 
+Si       1.94448003       1.94448003       0.00000000       14       0.00000000       0.00000000       0.00000000 
+Si       1.94448003       0.00000000       1.94448003       14       0.00000000       0.00000000       0.00000000 
+Si       0.00000000       1.94448003       1.94448003       14       0.00000000       0.00000000       0.00000000 
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 225 , international (Hermann-Mauguin) Fm-3m , Hall -F 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+EV_final  12.86614712372357 -162.517816341
+EV_final  13.23375132725853 -162.541120703
+EV_final  13.601355530793489 -162.560186601
+EV_final  13.968959734328442 -162.573278548
+EV_final  14.3365639378634 -162.580208721
+EV_final  14.704168141398366 -162.582242887
+EV_final  15.071772344933322 -162.58073362
+EV_final  15.439376548468287 -162.575987682
+EV_final  15.806980752003245 -162.567207471
+EV_final  16.1745849555382 -162.553468291
+EV_final  16.542189159073153 -162.53526537
+EV_final  16.909793362608116 -162.513129018
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'fcc_E_vs_V': [('12.86614712372357', -162.5178163405319), ('13.23375132725853', -162.5411207026092), ('13.601355530793489', -162.5601866005242), ('13.968959734328442', -162.5732785479761), ('14.3365639378634', -162.5802087213247), ('14.704168141398366', -162.5822428868915), ('15.071772344933322', -162.58073361976557), ('15.439376548468287', -162.575987681543), ('15.806980752003245', -162.56720747091947), ('16.1745849555382', -162.55346829139037), ('16.542189159073153', -162.5352653700789), ('16.909793362608116', -162.51312901837588)]}
+============================================================

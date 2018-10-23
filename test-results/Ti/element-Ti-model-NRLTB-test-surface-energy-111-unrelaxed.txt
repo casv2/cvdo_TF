@@ -1,0 +1,130 @@
+Model NRLTB, Test surface-energy-111-unrelaxed
+Test run at 2018-10-02 16:13
+
+model file: ../../../models/Ti/NRLTB/model.py
+============================================================
+from quippy import Potential
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(model_dir, '4x4x4k_mesh_param_file_tightbind.parms.NRL_TB.Ti_spline_old.xml')
+
+calculator = Potential('TB NRL-TB', param_filename = filename)#, Fermi_T = 0.001)
+
+no_checkpoint = True
+name = 'DFTB'============================================================
+test file: ../../../tests/Ti/surface-energy-111-unrelaxed/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import BodyCenteredCubic
+import numpy as np
+
+import ase.io, sys
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model
+
+a0 = 3.32# initial guess at lattice constant, cell will be relaxed below
+fmax = 0.01 # maximum force following relaxtion [eV/A]
+
+# set up the a
+bulk = BodyCenteredCubic(symbol='Ti', latticeconstant=a0, directions=[[1,-1,0],[1,0,-1],[1,1,1]])
+
+# specify that we will use model.calculator to compute forces, energies and stresses
+bulk.set_calculator(model.calculator)
+
+# use one of the routines from utilities module to relax the initial
+# unit cell and atomic positions
+bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+
+# set up supercell
+bulk *= (1, 1, 10)
+
+
+def surface_energy(bulk, z_offset):
+    Nat = bulk.get_number_of_atoms()
+
+    # shift so cut is through shuffle plane
+    bulk.positions[:,2] += z_offset
+    bulk.wrap()
+
+    # relax atom positions, holding cell fixed
+    # vac = relax_atoms(vac, fmax=fmax)
+
+    # compute surface formation energy as difference of bulk and expanded cell
+    ebulk = bulk.get_potential_energy()
+    print 'bulk cell energy', ebulk
+
+    bulk.cell[2,:] += [0.0,0.0,10.0]
+    eexp  = bulk.get_potential_energy()
+
+    ase.io.write(sys.stdout, bulk, format='extxyz')
+
+    print 'expanded cell energy', eexp
+    e_form = 0.5*(eexp - ebulk) / np.linalg.norm(np.cross(bulk.cell[0,:],bulk.cell[1,:]))
+    print 'unrelaxed 111 surface formation energy', e_form
+    return e_form
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'surface_energy_111_unrelaxed':
+                surface_energy(bulk, 2.0) }
+============================================================
+relax_atoms_cell using method cg_n
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+bulk cell energy -180.391637004
+30
+Lattice="4.502723377412254 -0.17776344319312232 -0.22683575094807013 2.0968740791152665 3.9889938410907946 -0.22750424876325415 -1.3379313731454876 -0.7641357273725158 38.73995462312671" Properties=species:S:1:pos:R:3:Z:I:1 energy=-175.677152215 Minim_Constant_Volume=F Minim_Hydrostatic_Strain=F pbc="T T T"
+Ti      -0.00000000      -0.00000000       2.00000000       22 
+Ti       2.11067039       1.21946775       3.76455031       22 
+Ti       4.35513393       2.51534907       2.65510515       22 
+Ti      -0.13379314      -0.07641357       4.87399546       22 
+Ti       1.97687726       1.14305418       6.63854577       22 
+Ti       4.22134079       2.43893550       5.52910062       22 
+Ti      -0.26758627      -0.15282715       7.74799092       22 
+Ti       1.84308412       1.06664061       9.51254123       22 
+Ti       4.08754765       2.36252193       8.40309608       22 
+Ti      -0.40137941      -0.22924072      10.62198639       22 
+Ti       1.70929098       0.99022703      12.38653670       22 
+Ti       3.95375451       2.28610836      11.27709154       22 
+Ti      -0.53517255      -0.30565429      13.49598185       22 
+Ti       1.57549784       0.91381346      15.26053216       22 
+Ti       3.81996138       2.20969478      14.15108700       22 
+Ti      -0.66896569      -0.38206786      16.36997731       22 
+Ti       1.44170471       0.83739989      18.13452762       22 
+Ti       3.68616824       2.13328121      17.02508247       22 
+Ti      -0.80275882      -0.45848144      19.24397277       22 
+Ti       1.30791157       0.76098631      21.00852308       22 
+Ti       3.55237510       2.05686764      19.89907793       22 
+Ti      -0.93655196      -0.53489501      22.11796824       22 
+Ti       1.17411843       0.68457274      23.88251854       22 
+Ti       3.41858196       1.98045407      22.77307339       22 
+Ti      -1.07034510      -0.61130858      24.99196370       22 
+Ti       1.04032530       0.60815917      26.75651401       22 
+Ti       3.28478883       1.90404049      25.64706885       22 
+Ti      -1.20413824      -0.68772215      27.86595916       22 
+Ti       2.24446353       1.29588132       0.89055485       22 
+Ti       4.48892706       2.59176265      -0.21889031       22 
+expanded cell energy -175.677152215
+unrelaxed 111 surface formation energy 0.12834372339249803
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'surface_energy_111_unrelaxed': '0.12834372339249803'}
+============================================================

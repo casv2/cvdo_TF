@@ -1,0 +1,67 @@
+Model DFTB, Test bulk_bcc
+Test run at 2018-09-10 14:54
+
+model file: ../../../models/Ti/DFTB/model.py
+============================================================
+from quippy import Potential
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(model_dir, '4x4x4k_mesh_param_file_tightbind.parms.NRL_TB.Ti_spline_old.xml')
+
+calculator = Potential('TB NRL-TB', param_filename = filename, Fermi_T = 0.001)
+
+#no_checkpoint = True
+#name = 'DFTB'============================================================
+test file: ../../../tests/Ti/bulk_bcc/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import BodyCenteredCubic
+
+import lattice_cubic
+
+# the current model
+import model 
+
+#a0 = 3.32 # initial guess at lattice constant, cell will be relaxed below
+a0 = 3.32
+
+# set up the a
+bulk = BodyCenteredCubic(symbol='Ti', latticeconstant=a0)
+
+
+(c11, c12, c44, E_vs_V) = lattice_cubic.do_lattice(bulk, elastic=True)
+
+#properties = {'bcc_E_vs_V': E_vs_V }
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'bcc_c11': c11, 'bcc_c12': c12, 'bcc_c44': c44, 'bcc_E_vs_V': E_vs_V }
+============================================================
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-5.23286619e-17 -1.03761831e-15  5.04628667e-16]
+ [ 8.25262799e-17  1.03037604e-15 -5.65827647e-16]]
+[[-5.23286619e-17 -1.03761831e-15  5.04628667e-16]
+ [ 8.25262799e-17  1.03037604e-15 -5.65827647e-16]]
+(2, 3)
+[[-5.23286619e-17 -1.03761831e-15  5.04628667e-16]
+ [ 8.25262799e-17  1.03037604e-15 -5.65827647e-16]]
+(2, 3)
+stress [ 0.01520292  0.01520292  0.01520292 -0.00033501 -0.00033501 -0.0003173 ]
+flat [ 0.01520292  0.01520292  0.01520292 -0.00033501 -0.00033501 -0.0003173 ]
+new_stress [[ 0.01520292 -0.0003173  -0.00033501]
+ [-0.0003173   0.01520292 -0.00033501]
+ [-0.00033501 -0.00033501  0.01520292]]

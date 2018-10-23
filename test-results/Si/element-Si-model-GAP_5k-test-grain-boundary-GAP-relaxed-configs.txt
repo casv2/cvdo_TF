@@ -1,0 +1,78 @@
+Model GAP_5k, Test grain-boundary-GAP-relaxed-configs
+Test run at 2018-10-02 13:48
+
+model file: ../../../models/Si/GAP_5k/model.py
+============================================================
+from quippy import Potential
+import __builtin__
+import os
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+#if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+#    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2017_5_19_60_8_49_14_561"', param_filename='./gp_iter5_with111adatom_with3x3das_noconfigtypes_sparse9k.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2017_5_19_60_8_49_14_561"', param_filename='./gp_iter5_with111adatom_with3x3das_noconfigtypes_sparse9k.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+
+#calculator = Potential(init_args='Potential xml_label="GAP_2017_5_19_60_8_49_14_561"', param_filename='./gp_iter5_with111adatom_with3x3das_noconfigtypes_sparse9k.xml')
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Si/grain-boundary-GAP-relaxed-configs/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+#ats = ase.io.read(os.path.join(os.path.dirname(__file__),"gb.0.25_0.0-relaxed.opt.xyz"),":")
+#Es = []
+#for at in ats:
+    # e0 = at.get_potential_energy()
+#    at.set_calculator(model.calculator)
+#    e = at.get_potential_energy()
+#    Es.append(e)
+at = ase.io.read(os.path.join(os.path.dirname(__file__),"gb.0.25_0.0-relaxed.opt.xyz"))
+at.set_calculator(model.calculator)
+energy = at.get_potential_energy()
+
+properties = {'grain-boundary-GAP-relaxed':energy}
+============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'grain-boundary-GAP-relaxed': -7828.036511945887}
+============================================================

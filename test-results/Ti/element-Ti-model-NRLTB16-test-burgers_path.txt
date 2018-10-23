@@ -1,0 +1,54 @@
+Model NRLTB16, Test burgers_path
+Test run at 2018-10-10 16:56
+
+model file: ../../../models/Ti/NRLTB16/model.py
+============================================================
+from quippy import Potential
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(model_dir, '16x16x16k_mesh_param_file_tightbind.parms.NRL_TB.Ti_spline.xml')
+
+calculator = Potential('TB NRL-TB', param_filename = filename)#, Fermi_T = 0.001)
+
+no_checkpoint = True
+name = 'DFTB'============================================================
+test file: ../../../tests/Ti/burgers_path/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+ats = ase.io.read(os.path.join(os.path.dirname(__file__),"burgers_path.xyz"),":")
+Es = []
+for at in ats:
+    # e0 = at.get_potential_energy()
+    e0 = 0.0
+    at.set_calculator(model.calculator)
+    e = at.get_potential_energy()
+    Es.append((e0, e))
+properties = {'E_orig_E' : Es}
+============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'E_orig_E': [(0.0, -11.988703915063931), (0.0, -11.989370385215729), (0.0, -11.989920305062752), (0.0, -11.99033107315695), (0.0, -11.9905225223172), (0.0, -11.990508247456635), (0.0, -11.990250318613182), (0.0, -11.989962394536526), (0.0, -11.989445078689432), (0.0, -11.98885858420755), (0.0, -11.988131596923866), (0.0, -11.987511872154323), (0.0, -11.987122808009449), (0.0, -11.986792238434465), (0.0, -11.986438388041051), (0.0, -11.986175586860657), (0.0, -11.985994455224073), (0.0, -11.985828963397319), (0.0, -11.985501458934731), (0.0, -11.985119322738527), (0.0, -11.984856221055217), (0.0, -11.984488913685826), (0.0, -11.984017897778559), (0.0, -11.983104159387576), (0.0, -11.98176062109086), (0.0, -11.980009588089393), (0.0, -11.977779343698359), (0.0, -11.9751527064997), (0.0, -11.971897654975656), (0.0, -11.968471600819175), (0.0, -11.968471600819175), (0.0, -11.970431958398057), (0.0, -11.973677531906768), (0.0, -11.978061229717134), (0.0, -11.983285091918377), (0.0, -11.989299799910201), (0.0, -11.995864427790195), (0.0, -12.002908023053159), (0.0, -12.010366691465052), (0.0, -12.01791923087896), (0.0, -12.02567304209311), (0.0, -12.033576648416576), (0.0, -12.041625546334028), (0.0, -12.049688977813833), (0.0, -12.057565889799175), (0.0, -12.06540295105866), (0.0, -12.073080369893349), (0.0, -12.08050987319012), (0.0, -12.087935416226063), (0.0, -12.095205079063566), (0.0, -12.102138630236642), (0.0, -12.108654408500021), (0.0, -12.114589331405625), (0.0, -12.119782591315568), (0.0, -12.124307164649), (0.0, -12.128101470735556), (0.0, -12.13101668711017), (0.0, -12.133223307520431), (0.0, -12.134646114796984), (0.0, -12.135106751215648)]}
+============================================================

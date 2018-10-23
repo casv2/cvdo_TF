@@ -1,0 +1,343 @@
+Model NRLTB8, Test bulk_bcc
+Test run at 2018-10-22 20:13
+
+model file: ../../../models/Ti/NRLTB8/model.py
+============================================================
+from quippy import Potential
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(model_dir, '8x8x8k_mesh_param_file_tightbind.parms.NRL_TB.Ti_spline.xml')
+
+calculator = Potential('TB NRL-TB', param_filename = filename)#, Fermi_T = 0.001)
+
+no_checkpoint = True
+name = 'DFTB'============================================================
+test file: ../../../tests/Ti/bulk_bcc/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import BodyCenteredCubic
+
+import lattice_cubic
+
+# the current model
+import model 
+
+#a0 = 3.32 # initial guess at lattice constant, cell will be relaxed below
+a0 = 3.32
+
+# set up the a
+bulk = BodyCenteredCubic(symbol='Ti', latticeconstant=a0)
+
+
+(c11, c12, c44, E_vs_V) = lattice_cubic.do_lattice(bulk, elastic=True)
+
+#properties = {'bcc_E_vs_V': E_vs_V }
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'bcc_c11': c11, 'bcc_c12': c12, 'bcc_c44': c44, 'bcc_E_vs_V': E_vs_V }
+============================================================
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-3.89169698e-16 -2.84042571e-16  4.12457430e-16]
+ [ 4.19669336e-16  2.76727869e-16 -4.74268488e-16]]
+stress [ 2.25685353e-02  2.25685353e-02  2.25685349e-02 -1.97389782e-05
+ -1.97389782e-05 -4.40394669e-06]
+flat [ 2.25685353e-02  2.25685353e-02  2.25685349e-02 -1.97389782e-05
+ -1.97389782e-05 -4.40394669e-06]
+new_stress [[ 2.25685353e-02 -4.40394669e-06 -1.97389782e-05]
+ [-4.40394669e-06  2.25685353e-02 -1.97389782e-05]
+ [-1.97389782e-05 -1.97389782e-05  2.25685349e-02]]
+[[-2.50738650e-17  2.04570552e-16 -5.22533454e-16]
+ [ 9.47999868e-17  2.22156651e-17  6.58326593e-16]]
+stress [ 1.89733138e-02  1.89733138e-02  1.89733133e-02 -1.99913526e-05
+ -1.99913526e-05 -4.50055821e-06]
+flat [ 1.89733138e-02  1.89733138e-02  1.89733133e-02 -1.99913526e-05
+ -1.99913526e-05 -4.50055821e-06]
+new_stress [[ 1.89733138e-02 -4.50055821e-06 -1.99913526e-05]
+ [-4.50055821e-06  1.89733138e-02 -1.99913526e-05]
+ [-1.99913526e-05 -1.99913526e-05  1.89733133e-02]]
+[[-3.09983068e-16  1.51900594e-16 -5.22721313e-16]
+ [ 3.58448796e-16  4.98884326e-17 -1.53259264e-16]]
+stress [ 1.52929004e-02  1.52929004e-02  1.52928999e-02 -2.02474285e-05
+ -2.02474285e-05 -4.59948818e-06]
+flat [ 1.52929004e-02  1.52929004e-02  1.52928999e-02 -2.02474285e-05
+ -2.02474285e-05 -4.59948818e-06]
+new_stress [[ 1.52929004e-02 -4.59948818e-06 -2.02474285e-05]
+ [-4.59948818e-06  1.52929004e-02 -2.02474285e-05]
+ [-2.02474285e-05 -2.02474285e-05  1.52928999e-02]]
+[[ 5.16641008e-16  1.10600677e-16  3.83894019e-16]
+ [-4.82126302e-16 -2.77708292e-16  2.31329801e-16]]
+stress [ 7.67190809e-03  7.67190809e-03  7.67190766e-03 -2.07709632e-05
+ -2.07709631e-05 -4.80445632e-06]
+flat [ 7.67190809e-03  7.67190809e-03  7.67190766e-03 -2.07709632e-05
+ -2.07709631e-05 -4.80445632e-06]
+new_stress [[ 7.67190809e-03 -4.80445632e-06 -2.07709631e-05]
+ [-4.80445632e-06  7.67190809e-03 -2.07709632e-05]
+ [-2.07709631e-05 -2.07709632e-05  7.67190766e-03]]
+[[-3.83636216e-16 -4.66461003e-16 -1.21859780e-15]
+ [ 2.89874413e-16  4.63319817e-16  3.36547653e-16]]
+stress [-7.34050812e-03 -7.34050812e-03 -7.34050856e-03 -5.50248970e-05
+ -5.50248970e-05 -3.85453692e-05]
+flat [-7.34050812e-03 -7.34050812e-03 -7.34050856e-03 -5.50248970e-05
+ -5.50248970e-05 -3.85453692e-05]
+new_stress [[-7.34050812e-03 -3.85453692e-05 -5.50248970e-05]
+ [-3.85453692e-05 -7.34050812e-03 -5.50248970e-05]
+ [-5.50248970e-05 -5.50248970e-05 -7.34050856e-03]]
+[[ 3.63862930e-16  3.48518867e-16 -2.98363701e-16]
+ [-5.04164420e-16 -4.76181320e-16  2.77892846e-16]]
+stress [-5.51961534e-04 -5.51961534e-04 -5.51961967e-04 -2.13052105e-05
+ -2.13052104e-05 -5.00418019e-06]
+flat [-5.51961534e-04 -5.51961534e-04 -5.51961967e-04 -2.13052105e-05
+ -2.13052104e-05 -5.00418019e-06]
+new_stress [[-5.51961534e-04 -5.00418019e-06 -2.13052104e-05]
+ [-5.00418019e-06 -5.51961534e-04 -2.13052105e-05]
+ [-2.13052104e-05 -2.13052105e-05 -5.51961967e-04]]
+[[ 7.79685604e-17 -2.67987176e-16 -1.09841586e-16]
+ [-1.36335690e-16  3.05972365e-16 -7.28730787e-17]]
+stress [ 8.15967727e-06  8.15967727e-06  8.15924418e-06 -2.12786924e-05
+ -2.12786924e-05 -5.00019950e-06]
+flat [ 8.15967727e-06  8.15967727e-06  8.15924418e-06 -2.12786924e-05
+ -2.12786924e-05 -5.00019950e-06]
+new_stress [[ 8.15967727e-06 -5.00019950e-06 -2.12786924e-05]
+ [-5.00019950e-06  8.15967727e-06 -2.12786924e-05]
+ [-2.12786924e-05 -2.12786924e-05  8.15924418e-06]]
+relaxed bulk
+2
+Lattice="3.2803146170769923 2.2521644026095457e-23 0.0 2.2521644026095457e-23 3.2803146170769923 0.0 0.0 0.0 3.2803146170769923" Properties=species:S:1:pos:R:3:Z:I:1:forces:R:3 stress="8.159532908385325e-06 2.361514191981638e-22 4.1982474524118003e-22 2.361514191981638e-22 8.159532908385324e-06 -2.88238921243881e-45 4.1982474524118003e-22 -2.88238921243881e-45 8.159532908385324e-06" energy=-12.0072627284 Minim_Constant_Volume=F Minim_Hydrostatic_Strain=F pbc="T T T"
+Ti       0.00000000       0.00000000       0.00000000       22      -0.00000000       0.00000000      -0.00000000 
+Ti       1.64015731       1.64015731       1.64015731       22       0.00000000      -0.00000000       0.00000000 
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+Fitting C_11
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-2.28948244e+00, -1.41141791e+00,  1.30732442e-03,  1.30284911e+00,
+        2.25163694e+00]) GPa
+Cij (gradient) / GPa    :     117.96505788049417
+Error in Cij / GPa      :     5.200984369334017
+Correlation coefficient :     0.9970969054551199
+Setting C11 (1) to 0.736280 +/- 0.032462
+
+
+Fitting C_21
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-1.90414980e+00, -6.46557030e-01,  1.30732442e-03,  1.09978437e+00,
+        2.04438277e+00]) GPa
+Cij (gradient) / GPa    :     96.43406546556457
+Error in Cij / GPa      :     4.566985017342138
+Correlation coefficient :     0.9966526232796282
+Setting C21 (7) to 0.601894 +/- 0.028505
+
+
+Fitting C_31
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-1.90414980e+00, -6.46557030e-01,  1.30725503e-03,  1.09978437e+00,
+        2.04438277e+00]) GPa
+Cij (gradient) / GPa    :     96.43406546557057
+Error in Cij / GPa      :     4.566985613156454
+Correlation coefficient :     0.9966526224106036
+Updating C31 (7) with value 0.601894 +/- 0.028505
+
+
+Fitting C_44
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-0.681693  , -0.45681695, -0.00340922,  0.35504728,  0.27040287]) GPa
+Cij (gradient) / GPa    :     27.160559759645466
+Error in Cij / GPa      :     5.213154073126286
+Correlation coefficient :     0.9489353063258256
+Setting C44 (4) to 0.169523 +/- 0.032538
+
+
+[[ C11  C12  C12               ]
+ [ C12  C11  C12               ]
+ [ C12  C12  C11               ]
+ [                C44          ]
+ [                     C44     ]
+ [                          C44]]
+
+ = 
+
+[[117.97  96.43  96.43   0.     0.     0.  ]
+ [ 96.43 117.97  96.43   0.     0.     0.  ]
+ [ 96.43  96.43 117.97   0.     0.     0.  ]
+ [  0.     0.     0.    27.16   0.     0.  ]
+ [  0.     0.     0.     0.    27.16   0.  ]
+ [  0.     0.     0.     0.     0.    27.16]]
+C_11 = 117.97 +/- 5.20 GPa
+C_12 = 96.43 +/- 4.57 GPa
+C_44 = 27.16 +/- 5.21 GPa
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[ 1.43265968e-16  1.85940138e-16  1.09042158e-15]
+ [-2.01525429e-16 -1.47847385e-16 -2.15429741e-15]]
+stress [ 8.15967727e-06  8.15967727e-06  8.15924418e-06 -2.12786924e-05
+ -2.12786924e-05 -5.00019950e-06]
+flat [ 8.15967727e-06  8.15967727e-06  8.15924418e-06 -2.12786924e-05
+ -2.12786924e-05 -5.00019950e-06]
+new_stress [[ 8.15967727e-06 -5.00019950e-06 -2.12786924e-05]
+ [-5.00019950e-06  8.15967727e-06 -2.12786924e-05]
+ [-2.12786924e-05 -2.12786924e-05  8.15924418e-06]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-4.15196729e-15 -3.75767344e-15 -2.40187372e-15]
+ [ 4.19390705e-15  4.02298634e-15  2.74186894e-15]]
+stress [-1.56516695e-02 -1.56516695e-02 -1.56516699e-02 -6.16932179e-05
+ -6.16932179e-05 -4.49345684e-05]
+flat [-1.56516695e-02 -1.56516695e-02 -1.56516699e-02 -6.16932179e-05
+ -6.16932179e-05 -4.49345684e-05]
+new_stress [[-1.56516695e-02 -4.49345684e-05 -6.16932179e-05]
+ [-4.49345684e-05 -1.56516695e-02 -6.16932179e-05]
+ [-6.16932179e-05 -6.16932179e-05 -1.56516699e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-6.16032582e-16  5.02255222e-16  2.22818770e-15]
+ [ 5.77027657e-16 -1.90533776e-16 -1.18397035e-15]]
+stress [-3.49622960e-02 -3.49622960e-02 -3.49622964e-02 -6.73647474e-05
+ -6.73647474e-05 -4.99066653e-05]
+flat [-3.49622960e-02 -3.49622960e-02 -3.49622964e-02 -6.73647474e-05
+ -6.73647474e-05 -4.99066653e-05]
+new_stress [[-3.49622960e-02 -4.99066653e-05 -6.73647474e-05]
+ [-4.99066653e-05 -3.49622960e-02 -6.73647474e-05]
+ [-6.73647474e-05 -6.73647474e-05 -3.49622964e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-5.29956202e-17 -6.90152416e-17  1.49723523e-15]
+ [ 7.41899972e-17  8.61539708e-17 -2.02568098e-17]]
+stress [-5.64646449e-02 -5.64646449e-02 -5.64646453e-02 -7.35966946e-05
+ -7.35966946e-05 -5.53964924e-05]
+flat [-5.64646449e-02 -5.64646449e-02 -5.64646453e-02 -7.35966946e-05
+ -7.35966946e-05 -5.53964924e-05]
+new_stress [[-5.64646449e-02 -5.53964924e-05 -7.35966946e-05]
+ [-5.53964924e-05 -5.64646449e-02 -7.35966946e-05]
+ [-7.35966946e-05 -7.35966946e-05 -5.64646453e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[ 2.27800520e-16  1.23737981e-16 -1.82105958e-16]
+ [-3.54972747e-16  1.41416511e-16  1.74323440e-17]]
+stress [-7.73691093e-02 -7.73691093e-02 -7.73691097e-02 -5.50748088e-05
+ -5.50748088e-05 -3.65729067e-05]
+flat [-7.73691093e-02 -7.73691093e-02 -7.73691097e-02 -5.50748088e-05
+ -5.50748088e-05 -3.65729067e-05]
+new_stress [[-7.73691093e-02 -3.65729067e-05 -5.50748088e-05]
+ [-3.65729067e-05 -7.73691093e-02 -5.50748088e-05]
+ [-5.50748088e-05 -5.50748088e-05 -7.73691097e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-1.30513320e-15 -7.74945846e-16 -1.91829916e-15]
+ [ 1.38022745e-15  7.71025191e-16  1.89669500e-15]]
+stress [-9.84369562e-02 -9.84369562e-02 -9.84369566e-02 -7.63648079e-05
+ -7.63648079e-05 -5.88273156e-05]
+flat [-9.84369562e-02 -9.84369562e-02 -9.84369566e-02 -7.63648079e-05
+ -7.63648079e-05 -5.88273156e-05]
+new_stress [[-9.84369562e-02 -5.88273156e-05 -7.63648079e-05]
+ [-5.88273156e-05 -9.84369562e-02 -7.63648079e-05]
+ [-7.63648079e-05 -7.63648079e-05 -9.84369566e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-3.31559996e-16  6.01019721e-16  1.27956399e-15]
+ [ 2.93202686e-16 -8.00873719e-16 -4.18366981e-16]]
+stress [ 1.57511236e-02  1.57511236e-02  1.57511231e-02 -2.02156668e-05
+ -2.02156668e-05 -4.58716933e-06]
+flat [ 1.57511236e-02  1.57511236e-02  1.57511231e-02 -2.02156668e-05
+ -2.02156668e-05 -4.58716933e-06]
+new_stress [[ 1.57511236e-02 -4.58716933e-06 -2.02156668e-05]
+ [-4.58716933e-06  1.57511236e-02 -2.02156668e-05]
+ [-2.02156668e-05 -2.02156668e-05  1.57511231e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-6.06331336e-16 -2.88393426e-16 -1.60098222e-15]
+ [ 6.59043121e-16  7.41361141e-16  1.72073671e-15]]
+stress [ 2.98612667e-02  2.98612667e-02  2.98612663e-02 -1.92194396e-05
+ -1.92194396e-05 -4.20782748e-06]
+flat [ 2.98612667e-02  2.98612667e-02  2.98612663e-02 -1.92194396e-05
+ -1.92194396e-05 -4.20782748e-06]
+new_stress [[ 2.98612667e-02 -4.20782748e-06 -1.92194396e-05]
+ [-4.20782748e-06  2.98612667e-02 -1.92194396e-05]
+ [-1.92194396e-05 -1.92194396e-05  2.98612663e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[ 4.59128148e-17  1.34192007e-16 -1.63883640e-16]
+ [-1.03272568e-16 -2.08507071e-16  1.35981561e-16]]
+stress [ 4.16732134e-02  4.16732134e-02  4.16732130e-02 -3.42707453e-05
+ -3.42707452e-05 -1.96693832e-05]
+flat [ 4.16732134e-02  4.16732134e-02  4.16732130e-02 -3.42707453e-05
+ -3.42707452e-05 -1.96693832e-05]
+new_stress [[ 4.16732134e-02 -1.96693832e-05 -3.42707452e-05]
+ [-1.96693832e-05  4.16732134e-02 -3.42707453e-05]
+ [-3.42707452e-05 -3.42707453e-05  4.16732130e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[ 9.09734896e-16  6.16353234e-17 -1.14180469e-15]
+ [-9.19406110e-16 -2.20682595e-16  3.26960323e-16]]
+stress [ 5.30134217e-02  5.30134217e-02  5.30134213e-02 -3.14991947e-05
+ -3.14991946e-05 -1.74701374e-05]
+flat [ 5.30134217e-02  5.30134217e-02  5.30134213e-02 -3.14991947e-05
+ -3.14991946e-05 -1.74701374e-05]
+new_stress [[ 5.30134217e-02 -1.74701374e-05 -3.14991946e-05]
+ [-1.74701374e-05  5.30134217e-02 -3.14991947e-05]
+ [-3.14991946e-05 -3.14991947e-05  5.30134213e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-2.67983982e-16 -4.77155622e-17  3.16528854e-16]
+ [ 2.42894264e-16 -8.54001928e-17 -2.78196770e-17]]
+stress [ 6.30962192e-02  6.30962192e-02  6.30962188e-02 -2.89849998e-05
+ -2.89849998e-05 -1.55027869e-05]
+flat [ 6.30962192e-02  6.30962192e-02  6.30962188e-02 -2.89849998e-05
+ -2.89849998e-05 -1.55027869e-05]
+new_stress [[ 6.30962192e-02 -1.55027869e-05 -2.89849998e-05]
+ [-1.55027869e-05  6.30962192e-02 -2.89849998e-05]
+ [-2.89849998e-05 -2.89849998e-05  6.30962188e-02]]
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 229 , international (Hermann-Mauguin) Im-3m , Hall -I 4 2 3
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-2.70252628e-15 -4.01386406e-15 -4.03065990e-15]
+ [ 2.74911685e-15  3.52135988e-15  3.60892700e-15]]
+stress [ 7.20156185e-02  7.20156185e-02  7.20156181e-02 -2.67142266e-05
+ -2.67142266e-05 -1.37555223e-05]
+flat [ 7.20156185e-02  7.20156185e-02  7.20156181e-02 -2.67142266e-05
+ -2.67142266e-05 -1.37555223e-05]
+new_stress [[ 7.20156185e-02 -1.37555223e-05 -2.67142266e-05]
+ [-1.37555223e-05  7.20156185e-02 -2.67142266e-05]
+ [-2.67142266e-05 -2.67142266e-05  7.20156181e-02]]
+EV_final  15.442746945113301 -5.89970421078
+EV_final  15.883968286402247 -5.93909887667
+EV_final  16.325189627691206 -5.96906493811
+EV_final  16.76641096898015 -5.98914992335
+EV_final  17.2076323102691 -6.00023926844
+EV_final  17.648853651558053 -6.00363136418
+EV_final  18.090074992847 -6.00009171707
+EV_final  18.531296334135966 -5.98997187424
+EV_final  18.972517675424914 -5.97410686075
+EV_final  19.413739016713865 -5.95316972191
+EV_final  19.854960358002817 -5.92751038823
+EV_final  20.296181699291754 -5.897661342
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'bcc_c12': '96.43406546556758', 'bcc_c11': '117.96505788049417', 'bcc_c44': '27.160559759645466', 'bcc_E_vs_V': [('15.442746945113301', -5.89970421077784), ('15.883968286402247', -5.9390988766662085), ('16.325189627691206', -5.969064938106049), ('16.76641096898015', -5.98914992334945), ('17.2076323102691', -6.000239268439732), ('17.648853651558053', -6.003631364177778), ('18.090074992847', -6.000091717074082), ('18.531296334135966', -5.9899718742431185), ('18.972517675424914', -5.974106860745073), ('19.413739016713865', -5.953169721907142), ('19.854960358002817', -5.927510388229613), ('20.296181699291754', -5.897661342001666)]}
+============================================================

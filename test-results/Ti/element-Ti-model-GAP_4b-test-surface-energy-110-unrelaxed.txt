@@ -1,0 +1,234 @@
+Model GAP_4b, Test surface-energy-110-unrelaxed
+Test run at 2018-09-03 18:54
+
+model file: ../../../models/Ti/GAP_4b/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_6_26_60_20_15_36_820"',
+                                               param_filename='gp_4b_no_wire_surface.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_6_26_60_20_15_36_820"',
+                                               param_filename='gp_4b_no_wire_surface.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Ti/surface-energy-110-unrelaxed/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import BodyCenteredCubic
+import numpy as np
+
+import ase.io, sys
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model
+
+a0 = 3.16 # initial guess at lattice constant, cell will be relaxed below
+fmax = 0.01 # maximum force following relaxtion [eV/A]
+
+# set up the a
+bulk = BodyCenteredCubic(symbol='W', latticeconstant=a0, directions=[[1,-1,0],[0,0,1],[1,1,0]])
+
+# specify that we will use model.calculator to compute forces, energies and stresses
+bulk.set_calculator(model.calculator)
+# flip coord system for ASE (precon minim?)
+c = bulk.get_cell()
+t_v = c[0,:].copy()
+c[0,:] = c[1,:]
+c[1,:] = t_v
+bulk.set_cell(c)
+
+# use one of the routines from utilities module to relax the initial
+# unit cell and atomic positions
+bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+
+# set up supercell
+bulk *= (1, 1, 10)
+
+ase.io.write(sys.stdout, bulk, format='extxyz')
+
+def surface_energy(bulk, z_offset):
+    Nat = bulk.get_number_of_atoms()
+
+    # shift so cut is through shuffle plane
+    bulk.positions[:,2] += z_offset
+    bulk.wrap()
+
+    # relax atom positions, holding cell fixed
+    # vac = relax_atoms(vac, fmax=fmax)
+
+    # compute surface formation energy as difference of bulk and expanded cell
+    ebulk = bulk.get_potential_energy()
+    print 'bulk cell energy', ebulk
+
+    bulk.cell[2,2] *= (np.abs(bulk.cell[2,2])+10.0)/np.abs(bulk.cell[2,2])
+    eexp  = bulk.get_potential_energy()
+
+    ase.io.write(sys.stdout, bulk, format='extxyz')
+
+    print 'expanded cell energy', eexp
+    e_form = 0.5*(eexp - ebulk) / np.linalg.norm(np.cross(bulk.cell[0,:],bulk.cell[1,:]))
+    print 'unrelaxed 110 surface formation energy', e_form
+    return e_form
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'surface_energy_110_unrelaxed':
+                surface_energy(bulk, 1.0) }
+============================================================
+WARNING: Creating a left-handed coordinate system!
+relax_atoms_cell using method lbfgs_precon
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  18:54:59      -24.951094       0.0000       0.0479
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.00 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=2.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=4.24 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): got r_NN=2.737 in 0.00174903869629 s
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000251054763794 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.00017786026001 s ---
+INFO:ase.optimize.precon:--- remove zeros in 7.58171081543e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000992059707642 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00171709060669 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=1.3663791189938048, mu_c=46.603614625389284
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000258922576904 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000181913375854 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 8.39233398438e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 7.00950622559e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000690937042236 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00102090835571 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00324702262878 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000303983688354 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   1  18:55:01      -24.969497       0.0000       0.0001
+40
+Lattice="2.748403340215813e-18 3.1728059787597083 -3.5799011864313553e-16 4.487025245940439 3.886829278604718e-18 -1.206009542813124e-18 1.2060095428131235e-17 5.0627448098067565e-15 -44.870252459404384" Properties=species:S:1:pos:R:3:Z:I:1 pbc="T T T" energy=-24.9694966986 stress="8.748607482441836e-05 2.261109831412266e-18 3.212584317968359e-18 2.261109831412266e-18 8.748607483171675e-05 -7.540779612008648e-15 3.212584317968359e-18 -7.540779612008648e-15 8.748607482654426e-05" forces="1.2396168018277864e-16 -1.7694184779416395e-16 4.857222589448732e-17 -1.9081929284423439e-16 2.4896577649730746e-13 2.134402918966969e-14 -2.5269716120330866e-13 -1.7201515082727708e-14 2.5951446690088008e-15 -2.1325995669294595e-13 1.9103487703443214e-13 1.9453188448354045e-14"
+W      -0.00000000      -0.00000000      -0.00000000       74 
+W       2.24351262       1.58640299       0.00000000       74 
+W       2.24351262       0.00000000      -2.24351262       74 
+W      -0.00000000       1.58640299      -2.24351262       74 
+W      -0.00000000      -0.00000000      -4.48702525       74 
+W       2.24351262       1.58640299      -4.48702525       74 
+W       2.24351262       0.00000000      -6.73053787       74 
+W      -0.00000000       1.58640299      -6.73053787       74 
+W      -0.00000000      -0.00000000      -8.97405049       74 
+W       2.24351262       1.58640299      -8.97405049       74 
+W       2.24351262       0.00000000     -11.21756311       74 
+W      -0.00000000       1.58640299     -11.21756311       74 
+W      -0.00000000       0.00000000     -13.46107574       74 
+W       2.24351262       1.58640299     -13.46107574       74 
+W       2.24351262       0.00000000     -15.70458836       74 
+W      -0.00000000       1.58640299     -15.70458836       74 
+W      -0.00000000       0.00000000     -17.94810098       74 
+W       2.24351262       1.58640299     -17.94810098       74 
+W       2.24351262       0.00000000     -20.19161361       74 
+W      -0.00000000       1.58640299     -20.19161361       74 
+W      -0.00000000       0.00000000     -22.43512623       74 
+W       2.24351262       1.58640299     -22.43512623       74 
+W       2.24351262       0.00000000     -24.67863885       74 
+W      -0.00000000       1.58640299     -24.67863885       74 
+W      -0.00000000       0.00000000     -26.92215148       74 
+W       2.24351262       1.58640299     -26.92215148       74 
+W       2.24351262       0.00000000     -29.16566410       74 
+W      -0.00000000       1.58640299     -29.16566410       74 
+W      -0.00000000       0.00000000     -31.40917672       74 
+W       2.24351262       1.58640299     -31.40917672       74 
+W       2.24351262       0.00000000     -33.65268934       74 
+W      -0.00000000       1.58640299     -33.65268934       74 
+W      -0.00000000       0.00000000     -35.89620197       74 
+W       2.24351262       1.58640299     -35.89620197       74 
+W       2.24351262       0.00000000     -38.13971459       74 
+W      -0.00000000       1.58640299     -38.13971459       74 
+W      -0.00000000       0.00000000     -40.38322721       74 
+W       2.24351262       1.58640299     -40.38322721       74 
+W       2.24351262       0.00000000     -42.62673984       74 
+W      -0.00000000       1.58640299     -42.62673984       74 
+bulk cell energy -249.694966986
+40
+Lattice="2.748403340215813e-18 3.1728059787597083 -3.5799011864313553e-16 4.487025245940439 3.886829278604718e-18 -1.206009542813124e-18 1.2060095428131235e-17 5.0627448098067565e-15 -54.870252459404384" Properties=species:S:1:pos:R:3:Z:I:1 energy=-244.340327267 pbc="T T T"
+W      -0.00000000       0.00000000     -43.87025246       74 
+W       2.24351262       1.58640299     -43.87025246       74 
+W       2.24351262       0.00000000      -1.24351262       74 
+W      -0.00000000       1.58640299      -1.24351262       74 
+W      -0.00000000      -0.00000000      -3.48702525       74 
+W       2.24351262       1.58640299      -3.48702525       74 
+W       2.24351262       0.00000000      -5.73053787       74 
+W      -0.00000000       1.58640299      -5.73053787       74 
+W      -0.00000000      -0.00000000      -7.97405049       74 
+W       2.24351262       1.58640299      -7.97405049       74 
+W       2.24351262       0.00000000     -10.21756311       74 
+W      -0.00000000       1.58640299     -10.21756311       74 
+W      -0.00000000       0.00000000     -12.46107574       74 
+W       2.24351262       1.58640299     -12.46107574       74 
+W       2.24351262       0.00000000     -14.70458836       74 
+W      -0.00000000       1.58640299     -14.70458836       74 
+W      -0.00000000       0.00000000     -16.94810098       74 
+W       2.24351262       1.58640299     -16.94810098       74 
+W       2.24351262       0.00000000     -19.19161361       74 
+W      -0.00000000       1.58640299     -19.19161361       74 
+W      -0.00000000       0.00000000     -21.43512623       74 
+W       2.24351262       1.58640299     -21.43512623       74 
+W       2.24351262       0.00000000     -23.67863885       74 
+W      -0.00000000       1.58640299     -23.67863885       74 
+W      -0.00000000       0.00000000     -25.92215148       74 
+W       2.24351262       1.58640299     -25.92215148       74 
+W       2.24351262       0.00000000     -28.16566410       74 
+W      -0.00000000       1.58640299     -28.16566410       74 
+W      -0.00000000       0.00000000     -30.40917672       74 
+W       2.24351262       1.58640299     -30.40917672       74 
+W       2.24351262       0.00000000     -32.65268934       74 
+W      -0.00000000       1.58640299     -32.65268934       74 
+W      -0.00000000       0.00000000     -34.89620197       74 
+W       2.24351262       1.58640299     -34.89620197       74 
+W       2.24351262       0.00000000     -37.13971459       74 
+W      -0.00000000       1.58640299     -37.13971459       74 
+W      -0.00000000       0.00000000     -39.38322721       74 
+W       2.24351262       1.58640299     -39.38322721       74 
+W       2.24351262       0.00000000     -41.62673984       74 
+W      -0.00000000       1.58640299     -41.62673984       74 
+expanded cell energy -244.340327267
+unrelaxed 110 surface formation energy 0.1880607791829224
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'surface_energy_110_unrelaxed': '0.1880607791829224'}
+============================================================

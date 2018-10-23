@@ -1,0 +1,53 @@
+Model SiPIP_4BBAenv, Test bulk_fcc
+Test run at 2018-10-05 16:43
+
+model file: ../../../models/Si/SiPIP_4BBAenv/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/SiPIP_4BBAenv.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Si/bulk_fcc/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import FaceCenteredCubic
+
+import lattice_cubic
+
+# the current model
+import model 
+
+a0 = (15.0*4)**(1.0/3.0)# initial guess at lattice constant, cell will be relaxed below
+
+# set up the a
+bulk = FaceCenteredCubic(symbol='Si', latticeconstant=a0)
+
+(E_vs_V) = lattice_cubic.do_lattice(bulk, elastic=False)
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'fcc_E_vs_V': E_vs_V }
+============================================================

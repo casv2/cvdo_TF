@@ -1,0 +1,200 @@
+Model GAP, Test bulk_sh
+Test run at 2018-08-31 15:57
+
+model file: ../../../models/Si/GAP/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2017_6_17_60_4_3_56_165"',
+                                               param_filename='gp_iter6_sparse9k.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2017_6_17_60_4_3_56_165"',
+                                               param_filename='gp_iter6_sparse9k.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Si/bulk_sh/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+import ase.io, os
+from math import sqrt
+
+import lattice_tetragonal
+
+# the current model
+import model 
+
+v0 = 18.0
+
+# set up the a
+bulk = ase.io.read(os.path.join(os.path.dirname(__file__),"sh.extxyz"))
+cell_factor = (len(bulk)*v0/bulk.get_volume())**(1.0/3.0)
+bulk.set_cell(bulk.get_cell()*cell_factor, scale_atoms=True)
+
+(E_vs_V) = lattice_tetragonal.do_lattice(bulk, use_precon=False, elastic=False)
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'sh_E_vs_V': E_vs_V }
+============================================================
+unrelaxed bulk
+1
+Lattice="2.7494592739972052 0.0 0.0 1.3747296369986026 2.381101577952299 0.0 0.0 0.0 2.7494592739972052" Properties=species:S:1:pos:R:3:Z:I:1 pbc="T T T"
+Si       0.00000000       0.00000000       0.00000000       14 
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+relaxed bulk
+1
+Lattice="2.6575799690038906 7.042412125908372e-17 -1.7511282127983916e-35 1.3287899845019453 2.30153176574603 1.9052664637041647e-35 -1.8577445745257756e-35 3.3347538188994654e-35 2.4760032635366493" Properties=species:S:1:pos:R:3:Z:I:1:forces:R:3 stress="-1.866701731639491e-06 -1.4085871906814198e-23 -3.464297647236092e-41 -1.4085871906814198e-23 -1.866701731639492e-06 1.4843195487378767e-40 -3.464297647236092e-41 1.4843195487378767e-40 9.182613022311591e-06" energy=-162.835544299 Minim_Constant_Volume=F Minim_Hydrostatic_Strain=F pbc="T T T"
+Si       0.00000000       0.00000000       0.00000000       14       0.00000000       0.00000000       0.00000000 
+calculating elastic constants
+calculating E vs. V
+bulk going into E vs. V
+1
+Lattice="2.6575799690038906 7.042412125908372e-17 -1.7511282127983916e-35 1.3287899845019453 2.30153176574603 1.9052664637041647e-35 -1.8577445745257756e-35 3.3347538188994654e-35 2.4760032635366493" Properties=species:S:1:pos:R:3:Z:I:1 Minim_Constant_Volume=F Minim_Hydrostatic_Strain=F pbc="T T T"
+Si       0.00000000       0.00000000       0.00000000       14 
+doing volume step 0
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 0
+done evaluate step 0
+EV  0 15.14448564487118 -162.835544299 [-1.86670173e-06 -1.86670173e-06  9.18261302e-06  1.82660461e-38
+ -1.01757581e-38  3.89452634e-17]
+doing volume step -1
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -1
+done evaluate step -1
+EV  -1 14.765857376280008 -162.832370993 [-1.72273815e-02 -1.72273815e-02 -1.72185622e-02 -9.39856552e-19
+ -2.68011250e-39  2.44362704e-17]
+doing volume step -2
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -2
+done evaluate step -2
+EV  -2 14.387243471685627 -162.822139952 [-3.73068113e-02 -3.73068113e-02 -3.72982228e-02 -5.43118184e-38
+  4.82294883e-19  6.99327580e-18]
+doing volume step -3
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -3
+done evaluate step -3
+EV  -3 14.008628789714157 -162.803758078 [-6.02737442e-02 -6.02737442e-02 -6.02654083e-02 -7.34298859e-38
+  1.02709193e-39 -1.70269683e-17]
+doing volume step -4
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -4
+done evaluate step -4
+EV  -4 13.630010513639945 -162.776146624 [-8.60472583e-02 -8.60472583e-02 -8.60383439e-02 -1.04446824e-37
+ -7.88220189e-39  7.63634103e-19]
+doing volume step -5
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -5
+done evaluate step -5
+EV  -5 13.251390478086813 -162.738234533 [-1.15100798e-01 -1.15100798e-01 -1.15089350e-01 -3.09272013e-18
+  8.83634324e-19  4.74544359e-18]
+doing volume step 1
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 1
+done evaluate step 1
+EV  1 15.523087937726302 -162.832699895 [ 1.46061832e-02  1.46061832e-02  1.46496721e-02  5.43698400e-39
+ -3.05586262e-39  1.34101422e-18]
+doing volume step 2
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 2
+done evaluate step 2
+EV  2 15.9016906603207 -162.824684904 [ 2.75681550e-02  2.75681550e-02  2.76293892e-02  8.72724046e-19
+  1.30908607e-18 -3.49089618e-18]
+doing volume step 3
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 3
+done evaluate step 3
+EV  3 16.28029969320978 -162.811969644 [ 3.93919315e-02  3.93919315e-02  3.94625385e-02  1.70485655e-18
+ -0.00000000e+00  2.59990624e-17]
+doing volume step 4
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 4
+done evaluate step 4
+EV  4 16.658921588635764 -162.794942577 [ 5.03958628e-02  5.03958628e-02  5.04818316e-02  1.66610879e-18
+ -1.24958159e-18 -1.99933054e-17]
+doing volume step 5
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 5
+done evaluate step 5
+EV  5 17.037537520042896 -162.773866164 [ 6.08004700e-02  6.08004700e-02  6.08213158e-02 -0.00000000e+00
+ -8.14541878e-19  1.62908376e-18]
+doing volume step 6
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 6
+done evaluate step 6
+EV  6 17.4161495013388 -162.748992784 [ 7.04016223e-02  7.04016223e-02  7.05123220e-02 -0.00000000e+00
+ -7.96834444e-19  1.99208611e-18]
+EV_final  13.251390478086813 -162.738234533
+EV_final  13.630010513639945 -162.776146624
+EV_final  14.008628789714157 -162.803758078
+EV_final  14.387243471685627 -162.822139952
+EV_final  14.765857376280008 -162.832370993
+EV_final  15.14448564487118 -162.835544299
+EV_final  15.523087937726302 -162.832699895
+EV_final  15.9016906603207 -162.824684904
+EV_final  16.28029969320978 -162.811969644
+EV_final  16.658921588635764 -162.794942577
+EV_final  17.037537520042896 -162.773866164
+EV_final  17.4161495013388 -162.748992784
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'sh_E_vs_V': [('13.251390478086813', -162.73823453317016), ('13.630010513639945', -162.77614662416744), ('14.008628789714157', -162.80375807750195), ('14.387243471685627', -162.82213995234298), ('14.765857376280008', -162.8323709932491), ('15.14448564487118', -162.83554429863412), ('15.523087937726302', -162.83269989466805), ('15.9016906603207', -162.8246849038605), ('16.28029969320978', -162.81196964371583), ('16.658921588635764', -162.79494257713276), ('17.037537520042896', -162.77386616440225), ('17.4161495013388', -162.74899278434435)]}
+============================================================

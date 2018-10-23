@@ -1,0 +1,54 @@
+Model NRLTB, Test hcp_to_bcc
+Test run at 2018-10-02 21:56
+
+model file: ../../../models/Ti/NRLTB/model.py
+============================================================
+from quippy import Potential
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(model_dir, '4x4x4k_mesh_param_file_tightbind.parms.NRL_TB.Ti_spline_old.xml')
+
+calculator = Potential('TB NRL-TB', param_filename = filename)#, Fermi_T = 0.001)
+
+no_checkpoint = True
+name = 'DFTB'============================================================
+test file: ../../../tests/Ti/hcp_to_bcc/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+ats = ase.io.read(os.path.join(os.path.dirname(__file__),"hcp_to_bcc_traj.xyz"),":")
+Es = []
+for at in ats[0::2]:
+    # e0 = at.get_potential_energy()
+    e0 = 0.0
+    at.set_calculator(model.calculator)
+    e = at.get_potential_energy()
+    Es.append((e0, e))
+properties = {'E_orig_E' : Es}
+============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'E_orig_E': [(0.0, -97.06234190353459), (0.0, -97.02141476740458), (0.0, -96.96764967913316), (0.0, -96.91260315633976), (0.0, -96.86917306181552), (0.0, -96.83191444793918), (0.0, -96.78525322283473), (0.0, -96.7227486344318), (0.0, -96.65340734437336), (0.0, -96.60060768855901), (0.0, -96.56487665942721), (0.0, -96.52390581905779), (0.0, -96.46691191855773), (0.0, -96.40583248356172), (0.0, -96.34077672126138), (0.0, -96.26740249540565), (0.0, -96.2124698485394), (0.0, -96.15528937405034), (0.0, -96.0930693603685), (0.0, -96.04344554703397), (0.0, -95.99124869727369), (0.0, -95.93128881525402), (0.0, -95.86583162586092), (0.0, -95.79202151708907), (0.0, -95.71498631688269), (0.0, -95.64156955728367), (0.0, -95.56617205651824), (0.0, -95.49124322859225), (0.0, -95.43288876372759), (0.0, -95.37222779050893), (0.0, -95.31257341615009), (0.0, -95.25021224818899), (0.0, -95.18951105141714), (0.0, -95.13619833988143), (0.0, -95.09734564483868), (0.0, -95.05966418280333), (0.0, -95.05067212896931), (0.0, -95.06560464946637), (0.0, -95.0793428620134), (0.0, -95.09533197050223), (0.0, -95.10587664653502), (0.0, -95.10740281705121), (0.0, -95.11599216917348), (0.0, -95.12843031037585), (0.0, -95.13220395399728), (0.0, -95.12415705419973), (0.0, -95.10303883373284), (0.0, -95.07169339868625), (0.0, -95.02093251057381), (0.0, -94.94037771219153)]}
+============================================================

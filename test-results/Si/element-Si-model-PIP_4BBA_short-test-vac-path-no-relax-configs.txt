@@ -1,0 +1,44 @@
+Model PIP_4BBA_short, Test vac-path-no-relax-configs
+Test run at 2018-09-29 13:17
+
+model file: ../../../models/Si/PIP_4BBA_short/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/SiPIP_4BBA_short_cas.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Si/vac-path-no-relax-configs/test.py
+============================================================
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+ats = ase.io.read(os.path.join(os.path.dirname(__file__),"model-GAP-vacancy-path.neb.xyz"),":")
+Es = []
+for at in ats:
+    at.set_calculator(model.calculator)
+    e = at.get_potential_energy()
+    Es.append(e)
+properties = {'vacancy-path' : Es}============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'vacancy-path': [-10275.460357580774, -10275.414472322262, -10275.348153936273, -10275.289536943465, -10275.275665413883, -10275.27799489793, -10275.275654115347, -10275.28940148103, -10275.347855367787, -10275.413986976553, -10275.459653320342]}
+============================================================

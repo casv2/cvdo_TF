@@ -1,0 +1,56 @@
+Model PIP_hcp_bcc, Test phonon_bcc
+Test run at 2018-10-12 16:47
+
+model file: ../../../models/Ti/PIP_hcp_bcc/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/PIP_hcp_bcc_fit.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Ti/phonon_bcc/test.py
+============================================================
+from ase.build import bulk
+from ase.calculators.emt import EMT
+from ase.dft.kpoints import ibz_points, bandpath
+from ase.phonons import Phonons
+
+import model
+# Setup crystal and EMT calculator
+atoms = bulk('Ti', 'bcc', a=3.32)
+
+# Phonon calculator
+N = 3
+ph = Phonons(atoms, model.calculator, supercell=(N, N, N), delta=0.05)
+ph.run()
+
+# Read forces and assemble the dynamical matrix
+ph.read(acoustic=True)
+
+# High-symmetry points in the Brillouin zone
+points = ibz_points['bcc']
+G = points['Gamma']
+H = points['H']
+P = points['P']
+N = points['N']
+
+point_names = ['$\Gamma$', 'H', 'P', '$\Gamma$', 'N']
+path = [G, H, P, G, N]
+
+path_kc, q, Q = bandpath(path, atoms.cell, 100)
+omega_kn = 1000 * ph.band_structure(path_kc)
+
+properties = {"omega_kn" : omega_kn.tolist(), "point_names" : point_names, "path" : path, "Q" : list(Q), "q" : list(q) }
+
+============================================================

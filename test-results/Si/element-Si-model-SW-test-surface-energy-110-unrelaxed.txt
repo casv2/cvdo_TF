@@ -1,0 +1,203 @@
+Model SW, Test surface-energy-110-unrelaxed
+Test run at 2018-09-06 10:47
+
+model file: ../../../models/Si/SW/model.py
+============================================================
+# Model for Stillinger-Weber with original parameters for Si (Z=14)
+
+from quippy import Potential
+
+# A module defining a module needs to define only one variable,
+# named `calculator`, which should be an instance of the ase.calculator.Calculator,
+# a subclass of this, or a compatible class implementing the calculator interface.
+
+calculator = Potential('IP SW', param_str="""
+<SW_params n_types="1">
+<per_type_data type="1" atomic_num="14" />
+<per_pair_data atnum_i="14" atnum_j="14" AA="7.049556277" BB="0.6022245584"
+      p="4" q="0" a="1.80" sigma="2.0951" eps="2.1675" />
+<per_triplet_data atnum_c="14" atnum_j="14" atnum_k="14"
+      lambda="21.0" gamma="1.20" eps="2.1675" />
+</SW_params>
+""")
+
+no_checkpoint = True
+name = 'SW'
+
+============================================================
+test file: ../../../tests/Si/surface-energy-110-unrelaxed/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import Diamond
+import numpy as np
+
+import ase.io, sys
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model
+
+a0 = 5.44 # initial guess at lattice constant, cell will be relaxed below
+fmax = 0.01 # maximum force following relaxtion [eV/A]
+
+# set up the a
+bulk = Diamond(symbol='Si', latticeconstant=a0, directions=[[1,-1,0],[0,0,1],[1,1,0]])
+
+# specify that we will use model.calculator to compute forces, energies and stresses
+bulk.set_calculator(model.calculator)
+# flip coord system for ASE (precon minim?)
+c = bulk.get_cell()
+t_v = c[0,:].copy()
+c[0,:] = c[1,:]
+c[1,:] = t_v
+bulk.set_cell(c)
+
+# use one of the routines from utilities module to relax the initial
+# unit cell and atomic positions
+bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+
+# set up supercell
+bulk *= (1, 1, 10)
+
+ase.io.write(sys.stdout, bulk, format='extxyz')
+
+def surface_energy(bulk, z_offset):
+    Nat = bulk.get_number_of_atoms()
+
+    # shift so cut is through shuffle plane
+    bulk.positions[:,2] += z_offset
+    bulk.wrap()
+
+    # relax atom positions, holding cell fixed
+    # vac = relax_atoms(vac, fmax=fmax)
+
+    # compute surface formation energy as difference of bulk and expanded cell
+    ebulk = bulk.get_potential_energy()
+    print 'bulk cell energy', ebulk
+
+    bulk.cell[2,2] *= (np.abs(bulk.cell[2,2])+10.0)/np.abs(bulk.cell[2,2])
+    eexp  = bulk.get_potential_energy()
+
+    ase.io.write(sys.stdout, bulk, format='extxyz')
+
+    print 'expanded cell energy', eexp
+    e_form = 0.5*(eexp - ebulk) / np.linalg.norm(np.cross(bulk.cell[0,:],bulk.cell[1,:]))
+    print 'unrelaxed 110 surface formation energy', e_form
+    return e_form
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'surface_energy_110_unrelaxed':
+                surface_energy(bulk, 1.0) }
+============================================================
+WARNING: Creating a left-handed coordinate system!
+relax_atoms_cell using method lbfgs_precon
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  10:47:40      -17.339369       0.0000       0.0031
+40
+Lattice="0.0 5.44 0.0 3.8466608896548187 0.0 0.0 0.0 0.0 -38.46660889654819" Properties=species:S:1:pos:R:3:Z:I:1 pbc="T T T" energy=-17.3393686797 stress="0.0031378712609184435 -1.200379990893154e-16 1.199769778532218e-18 -1.200379990893154e-16 0.0031378712609184895 5.405170652938023e-17 1.199769778532218e-18 5.405170652938023e-17 0.0031378712609185324" forces="8.843620280529763e-15 -7.4593109467002705e-16 7.96028290683092e-16 -8.895661984809067e-15 8.153200337090993e-17 -7.056855100273651e-15 3.1158412075353804e-15 3.8614944575243726e-15 1.5066972475475692e-15 7.696955058173805e-17 4.019680237980915e-15 -5.59816342771055e-15"
+Si       0.00000000       0.00000000       0.00000000       14 
+Si       0.00000000       1.36000000      -1.92333044       14 
+Si       1.92333044       2.72000000      -1.92333044       14 
+Si       1.92333044       4.08000000      -3.84666089       14 
+Si       0.00000000       0.00000000      -3.84666089       14 
+Si       0.00000000       1.36000000      -5.76999133       14 
+Si       1.92333044       2.72000000      -5.76999133       14 
+Si       1.92333044       4.08000000      -7.69332178       14 
+Si       0.00000000       0.00000000      -7.69332178       14 
+Si       0.00000000       1.36000000      -9.61665222       14 
+Si       1.92333044       2.72000000      -9.61665222       14 
+Si       1.92333044       4.08000000     -11.53998267       14 
+Si       0.00000000       0.00000000     -11.53998267       14 
+Si       0.00000000       1.36000000     -13.46331311       14 
+Si       1.92333044       2.72000000     -13.46331311       14 
+Si       1.92333044       4.08000000     -15.38664356       14 
+Si       0.00000000       0.00000000     -15.38664356       14 
+Si       0.00000000       1.36000000     -17.30997400       14 
+Si       1.92333044       2.72000000     -17.30997400       14 
+Si       1.92333044       4.08000000     -19.23330445       14 
+Si       0.00000000       0.00000000     -19.23330445       14 
+Si       0.00000000       1.36000000     -21.15663489       14 
+Si       1.92333044       2.72000000     -21.15663489       14 
+Si       1.92333044       4.08000000     -23.07996534       14 
+Si       0.00000000       0.00000000     -23.07996534       14 
+Si       0.00000000       1.36000000     -25.00329578       14 
+Si       1.92333044       2.72000000     -25.00329578       14 
+Si       1.92333044       4.08000000     -26.92662623       14 
+Si       0.00000000       0.00000000     -26.92662623       14 
+Si       0.00000000       1.36000000     -28.84995667       14 
+Si       1.92333044       2.72000000     -28.84995667       14 
+Si       1.92333044       4.08000000     -30.77328712       14 
+Si       0.00000000       0.00000000     -30.77328712       14 
+Si       0.00000000       1.36000000     -32.69661756       14 
+Si       1.92333044       2.72000000     -32.69661756       14 
+Si       1.92333044       4.08000000     -34.61994801       14 
+Si       0.00000000       0.00000000     -34.61994801       14 
+Si       0.00000000       1.36000000     -36.54327845       14 
+Si       1.92333044       2.72000000     -36.54327845       14 
+Si       1.92333044       4.08000000     -38.46660890       14 
+bulk cell energy -173.393686797
+40
+Lattice="0.0 5.44 0.0 3.8466608896548187 0.0 0.0 0.0 0.0 -48.46660889654818" Properties=species:S:1:pos:R:3:Z:I:1 energy=-169.058844627 pbc="T T T"
+Si       0.00000000       0.00000000     -37.46660890       14 
+Si       0.00000000       1.36000000      -0.92333044       14 
+Si       1.92333044       2.72000000      -0.92333044       14 
+Si       1.92333044       4.08000000      -2.84666089       14 
+Si       0.00000000       0.00000000      -2.84666089       14 
+Si       0.00000000       1.36000000      -4.76999133       14 
+Si       1.92333044       2.72000000      -4.76999133       14 
+Si       1.92333044       4.08000000      -6.69332178       14 
+Si       0.00000000       0.00000000      -6.69332178       14 
+Si       0.00000000       1.36000000      -8.61665222       14 
+Si       1.92333044       2.72000000      -8.61665222       14 
+Si       1.92333044       4.08000000     -10.53998267       14 
+Si       0.00000000       0.00000000     -10.53998267       14 
+Si       0.00000000       1.36000000     -12.46331311       14 
+Si       1.92333044       2.72000000     -12.46331311       14 
+Si       1.92333044       4.08000000     -14.38664356       14 
+Si       0.00000000       0.00000000     -14.38664356       14 
+Si       0.00000000       1.36000000     -16.30997400       14 
+Si       1.92333044       2.72000000     -16.30997400       14 
+Si       1.92333044       4.08000000     -18.23330445       14 
+Si       0.00000000       0.00000000     -18.23330445       14 
+Si       0.00000000       1.36000000     -20.15663489       14 
+Si       1.92333044       2.72000000     -20.15663489       14 
+Si       1.92333044       4.08000000     -22.07996534       14 
+Si       0.00000000       0.00000000     -22.07996534       14 
+Si       0.00000000       1.36000000     -24.00329578       14 
+Si       1.92333044       2.72000000     -24.00329578       14 
+Si       1.92333044       4.08000000     -25.92662623       14 
+Si       0.00000000       0.00000000     -25.92662623       14 
+Si       0.00000000       1.36000000     -27.84995667       14 
+Si       1.92333044       2.72000000     -27.84995667       14 
+Si       1.92333044       4.08000000     -29.77328712       14 
+Si       0.00000000       0.00000000     -29.77328712       14 
+Si       0.00000000       1.36000000     -31.69661756       14 
+Si       1.92333044       2.72000000     -31.69661756       14 
+Si       1.92333044       4.08000000     -33.61994801       14 
+Si       0.00000000       0.00000000     -33.61994801       14 
+Si       0.00000000       1.36000000     -35.54327845       14 
+Si       1.92333044       2.72000000     -35.54327845       14 
+Si       1.92333044       4.08000000     -37.46660890       14 
+expanded cell energy -169.058844627
+unrelaxed 110 surface formation energy 0.10357632372305121
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'surface_energy_110_unrelaxed': '0.10357632372305121'}
+============================================================

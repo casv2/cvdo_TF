@@ -1,0 +1,27 @@
+Model PIP_4BBA_short, Test 111_layers_short
+Test run at 2018-10-02 12:19
+
+model file: ../../../models/Si/PIP_4BBA_short/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/SiPIP_4BBA_short_cas.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Si/111_layers_short/test.py
+============================================================
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 88, in <module>
+    sys.stdout.write(open(test_file).read())
+IOError: [Errno 2] No such file or directory: '../../../tests/Si/111_layers_short/test.py'

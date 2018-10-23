@@ -1,0 +1,73 @@
+Model Ti_Env4B_reg_tmp, Test burgers_path
+Test run at 2018-10-10 12:11
+
+model file: ../../../models/Ti/Ti_Env4B_reg_tmp/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/Ti-Env4B-reg-tmp.jld2")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Ti/burgers_path/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+ats = ase.io.read(os.path.join(os.path.dirname(__file__),"burgers_path.xyz"),":")
+Es = []
+for at in ats[0::2]:
+    # e0 = at.get_potential_energy()
+    e0 = 0.0
+    at.set_calculator(model.calculator)
+    e = at.get_potential_energy()
+    Es.append((e0, e))
+properties = {'E_orig_E' : Es}
+============================================================
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 91, in <module>
+    import model # import and run the current model
+  File "../../../models/Ti/Ti_Env4B_reg_tmp/model.py", line 6, in <module>
+    IP = juliaimport.import_IP(model_dir + "/Ti-Env4B-reg-tmp.jld2")
+  File "../../../models/Ti/Ti_Env4B_reg_tmp/juliaimport.py", line 25, in import_IP
+    julia.eval("IPf = fast(IP)")
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/julia-0.1.5-py2.7.egg/julia/core.py", line 458, in eval
+    ans = self._call(src)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/julia-0.1.5-py2.7.egg/julia/core.py", line 412, in _call
+    self.check_exception(src)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/julia-0.1.5-py2.7.egg/julia/core.py", line 441, in check_exception
+    .format(exception, src))
+julia.core.JuliaError: Exception 'MethodError: no method matching fast(::Void)
+Closest candidates are:
+  fast(!Matched::NBodyIPs.NBodyIP) at /Users/Cas/.julia/v0.6/NBodyIPs/src/common.jl:113
+  fast(!Matched::NBodyIPs.OneBody) at /Users/Cas/.julia/v0.6/NBodyIPs/src/onebody.jl:22
+  fast(!Matched::NBodyIPs.Polys.StNBPoly) at /Users/Cas/.julia/v0.6/NBodyIPs/src/polys.jl:243
+  ...' occurred while calling julia code:
+IPf = fast(IP)

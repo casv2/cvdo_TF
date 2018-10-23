@@ -1,0 +1,168 @@
+Model PIP_EnvSW+Reg, Test surface-energy-111-unrelaxed
+Test run at 2018-09-10 15:50
+
+model file: ../../../models/Si/PIP_EnvSW+Reg/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/Si_IP4+EnvSW+Reg.jld2")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Si/surface-energy-111-unrelaxed/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import Diamond
+import numpy as np
+
+import ase.io, sys
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model
+
+a0 = 5.44 # initial guess at lattice constant, cell will be relaxed below
+fmax = 0.01 # maximum force following relaxtion [eV/A]
+
+# set up the a
+bulk = Diamond(symbol='Si', latticeconstant=a0, directions=[[1,-1,0],[1,0,-1],[1,1,1]])
+
+# specify that we will use model.calculator to compute forces, energies and stresses
+bulk.set_calculator(model.calculator)
+
+# use one of the routines from utilities module to relax the initial
+# unit cell and atomic positions
+bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+
+# set up supercell
+bulk *= (1, 1, 10)
+
+
+def surface_energy(bulk, z_offset):
+    Nat = bulk.get_number_of_atoms()
+
+    # shift so cut is through shuffle plane
+    bulk.positions[:,2] += z_offset
+    bulk.wrap()
+
+    # relax atom positions, holding cell fixed
+    # vac = relax_atoms(vac, fmax=fmax)
+
+    # compute surface formation energy as difference of bulk and expanded cell
+    ebulk = bulk.get_potential_energy()
+    print 'bulk cell energy', ebulk
+
+    bulk.cell[2,:] += [0.0,0.0,10.0]
+    eexp  = bulk.get_potential_energy()
+
+    ase.io.write(sys.stdout, bulk, format='extxyz')
+
+    print 'expanded cell energy', eexp
+    e_form = 0.5*(eexp - ebulk) / np.linalg.norm(np.cross(bulk.cell[0,:],bulk.cell[1,:]))
+    print 'unrelaxed 111 surface formation energy', e_form
+    return e_form
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'surface_energy_111_unrelaxed':
+                surface_energy(bulk, 2.0) }
+============================================================
+relax_atoms_cell using method cg_n
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+/Users/Cas/.local/lib/python2.7/site-packages/ase/atoms.py:763: UserWarning: Converting 3x3 stress tensor from JulipCalculator calculator to the required Voigt form.
+  'calculator to the required Voigt form.')
+bulk cell energy -9790.63655704
+60
+Lattice="3.8604591241568422 -5.128558138799155e-10 2.9457638603984467e-10 1.9302295616342753 3.343255672951045 4.889331331680788e-10 7.215618360707374e-09 9.663178157473344e-09 104.56155028849403" Properties=species:S:1:pos:R:3:Z:I:1 energy=-9788.83695235 Minim_Constant_Volume=F Minim_Hydrostatic_Strain=F pbc="T T T"
+Si       0.00000000       0.00000000       2.00000000       14 
+Si      -0.00000000      -0.00000000       4.36403876       14 
+Si       1.93022956       1.11441856       8.30410336       14 
+Si       1.93022956       1.11441856      10.66814211       14 
+Si       3.86045912       2.22883712       5.15205168       14 
+Si       3.86045912       2.22883711       7.51609043       14 
+Si       0.00000000       0.00000000      11.45615503       14 
+Si       0.00000000      -0.00000000      13.82019379       14 
+Si       1.93022957       1.11441856      17.76025839       14 
+Si       1.93022956       1.11441856      20.12429714       14 
+Si       3.86045912       2.22883712      14.60820670       14 
+Si       3.86045912       2.22883712      16.97224546       14 
+Si       0.00000000       0.00000000      20.91231005       14 
+Si       0.00000000      -0.00000000      23.27634881       14 
+Si       1.93022957       1.11441856      27.21641341       14 
+Si       1.93022956       1.11441856      29.58045217       14 
+Si       3.86045913       2.22883712      24.06436173       14 
+Si       3.86045912       2.22883712      26.42840049       14 
+Si       0.00000000       0.00000000      30.36846508       14 
+Si       0.00000000       0.00000000      32.73250384       14 
+Si       1.93022957       1.11441856      36.67256844       14 
+Si       1.93022956       1.11441856      39.03660720       14 
+Si       3.86045913       2.22883712      33.52051676       14 
+Si       3.86045912       2.22883712      35.88455552       14 
+Si       0.00000000       0.00000001      39.82462011       14 
+Si       0.00000000       0.00000000      42.18865887       14 
+Si       1.93022957       1.11441856      46.12872347       14 
+Si       1.93022957       1.11441856      48.49276223       14 
+Si       3.86045913       2.22883712      42.97667179       14 
+Si       3.86045913       2.22883712      45.34071055       14 
+Si       0.00000000       0.00000001      49.28077514       14 
+Si       0.00000000       0.00000000      51.64481390       14 
+Si       1.93022957       1.11441856      55.58487850       14 
+Si       1.93022957       1.11441856      57.94891726       14 
+Si       3.86045913       2.22883712      52.43282682       14 
+Si       3.86045913       2.22883712      54.79686558       14 
+Si       0.00000001       0.00000001      58.73693017       14 
+Si       0.00000000       0.00000000      61.10096893       14 
+Si       1.93022957       1.11441856      65.04103353       14 
+Si       1.93022957       1.11441856      67.40507228       14 
+Si       3.86045913       2.22883712      61.88898185       14 
+Si       3.86045913       2.22883712      64.25302061       14 
+Si       0.00000001       0.00000001      68.19308520       14 
+Si       0.00000000       0.00000000      70.55712396       14 
+Si       1.93022957       1.11441857      74.49718856       14 
+Si       1.93022957       1.11441856      76.86122731       14 
+Si       3.86045913       2.22883712      71.34513688       14 
+Si       3.86045913       2.22883712      73.70917564       14 
+Si       0.00000001       0.00000001      77.64924023       14 
+Si       0.00000001       0.00000001      80.01327899       14 
+Si       1.93022957       1.11441857      83.95334359       14 
+Si       1.93022957       1.11441856      86.31738234       14 
+Si       3.86045913       2.22883713      80.80129191       14 
+Si       3.86045913       2.22883712      83.16533066       14 
+Si       0.00000001       0.00000001      87.10539526       14 
+Si       0.00000001       0.00000001      89.46943402       14 
+Si       1.93022957       1.11441857      93.40949862       14 
+Si       1.93022956       1.11441856       1.21198708       14 
+Si       3.86045913       2.22883713      90.25744694       14 
+Si       3.86045913       2.22883712      92.62148569       14 
+expanded cell energy -9788.83695235
+unrelaxed 111 surface formation energy 0.0697169809699297
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'surface_energy_111_unrelaxed': '0.0697169809699297'}
+============================================================

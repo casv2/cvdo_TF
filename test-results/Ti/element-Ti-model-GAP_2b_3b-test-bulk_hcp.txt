@@ -1,0 +1,444 @@
+Model GAP_2b_3b, Test bulk_hcp
+Test run at 2018-09-03 19:22
+
+model file: ../../../models/Ti/GAP_2b_3b/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_5_29_60_13_48_53_535"',
+                                               param_filename='gp_2b_3b.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_5_29_60_13_48_53_535"',
+                                               param_filename='gp_2b_3b.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Ti/bulk_hcp/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.hexagonal import HexagonalClosedPacked
+from math import sqrt
+
+import lattice_tetragonal
+
+# the current model
+import model 
+
+#c_over_a = 1.8
+#a0 = (16.0*2*2/sqrt(3.0)/c_over_a)**(1.0/3.0)# initial guess at lattice constant, cell will be relaxed below
+
+c_over_a = 1.588
+a0 = 2.95
+
+# set up the a
+bulk = HexagonalClosedPacked(symbol='Ti', latticeconstant=(a0,a0*c_over_a))
+
+(c11, c33, c12, c13, c44, c66, E_vs_V) = lattice_tetragonal.do_lattice(bulk, elastic=True)#, tol=1.0e-2)
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+#properties = {'hcp_E_vs_V': E_vs_V }
+
+properties = {'hcp_c11': c11, 'hcp_c33': c33, 'hcp_c12': c12, 'hcp_c13': c13, 'hcp_c44': c44, 'hcp_c66': c66, 'hcp_E_vs_V': E_vs_V }
+============================================================
+unrelaxed bulk
+2
+Lattice="2.95 0.0 0.0 -1.4749999999999994 2.5547749411640948 0.0 0.0 0.0 4.6846000000000005" Properties=species:S:1:pos:R:3:Z:I:1 pbc="T T T"
+Ti       0.00000000       0.00000000       0.00000000       22 
+Ti       0.00000000       1.70318329       2.34230000       22 
+relax_atoms_cell using method lbfgs_precon
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  19:22:56      -12.116600       0.0000       0.1003
+{'info': {}, '_addsorbate_info_size': array([1, 1]), '_celldisp': array([[0.],
+       [0.],
+       [0.]]), '_calc': <utilities.SymmetrizedCalculator instance at 0x11a41dea8>, 'arrays': {'positions': array([[0.00000000e+00, 0.00000000e+00, 0.00000000e+00],
+       [5.87513720e-16, 1.70318329e+00, 2.34230000e+00]]), 'numbers': array([22, 22])}, '_pbc': array([ True,  True,  True]), '_cell': array([[ 2.95      ,  0.        ,  0.        ],
+       [-1.475     ,  2.55477494,  0.        ],
+       [ 0.        ,  0.        ,  4.6846    ]]), 'millerbasis': array([[ 2.95000000e+00,  0.00000000e+00,  0.00000000e+00],
+       [-1.47500000e+00,  2.55477494e+00,  0.00000000e+00],
+       [ 2.86849020e-16,  4.96837076e-16,  4.68460000e+00]]), '_constraints': []}
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.00 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=2.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=4.24 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): got r_NN=2.896 in 0.000823974609375 s
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000150918960571 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000102043151855 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.60012054443e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000556945800781 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000491857528687 s ---
+INFO:ase.optimize.precon:mu (0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-7.586) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000108957290649 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 8.60691070557e-05 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 3.38554382324e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 2.90870666504e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00029182434082 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000460863113403 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00142598152161 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000184059143066 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.100, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.034, suff_dec = True
+PreconLBFGS:   1  19:26:31      -12.248195       0.0000       0.0482
+{'info': {}, '_addsorbate_info_size': array([1, 1]), '_celldisp': array([[0.],
+       [0.],
+       [0.]]), '_calc': <utilities.SymmetrizedCalculator instance at 0x11a41dea8>, 'arrays': {'positions': array([[ 4.77466569e-32, -2.75665452e-32,  2.83737898e-36],
+       [ 5.70016964e-16,  1.65246077e+00,  2.32178527e+00]]), 'numbers': array([22, 22])}, '_pbc': array([ True,  True,  True]), '_cell': array([[ 2.86214600e+00, -1.68700604e-17,  1.62798095e-35],
+       [-1.43107300e+00,  2.47869115e+00, -8.13990474e-36],
+       [ 2.58523374e-35,  8.28551338e-52,  4.64357055e+00]]), 'millerbasis': array([[ 2.95000000e+00,  0.00000000e+00,  0.00000000e+00],
+       [-1.47500000e+00,  2.55477494e+00,  0.00000000e+00],
+       [ 2.86849020e-16,  4.96837076e-16,  4.68460000e+00]]), '_constraints': []}
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000102996826172 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000102043151855 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.81469726562e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000393152236938 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000477075576782 s ---
+INFO:ase.optimize.precon:mu (-0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-123.276) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000107049942017 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 9.10758972168e-05 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 2.90870666504e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.00407409668e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000310182571411 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000477075576782 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00149393081665 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000133991241455 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 0.318, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.195, suff_dec = True
+PreconLBFGS:   2  19:26:32      -12.326807       0.0000       0.0070
+{'info': {}, '_addsorbate_info_size': array([1, 1]), '_celldisp': array([[0.],
+       [0.],
+       [0.]]), '_calc': <utilities.SymmetrizedCalculator instance at 0x11a41dea8>, 'arrays': {'positions': array([[ 7.84658684e-31, -6.51944991e-31,  2.48618518e-35],
+       [ 4.01408922e-16,  1.59280492e+00,  2.50993482e+00]]), 'numbers': array([22, 22])}, '_pbc': array([ True,  True,  True]), '_cell': array([[ 2.75881905e+00, -3.32980589e-17,  2.07091817e-34],
+       [-1.37940952e+00,  2.38920738e+00, -8.44318916e-34],
+       [ 3.25443951e-34, -1.32952115e-33,  5.01986963e+00]]), 'millerbasis': array([[ 2.95000000e+00,  0.00000000e+00,  0.00000000e+00],
+       [-1.47500000e+00,  2.55477494e+00,  0.00000000e+00],
+       [ 2.86849020e-16,  4.96837076e-16,  4.68460000e+00]]), '_constraints': []}
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000141859054565 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 9.60826873779e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.38554382324e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000354051589966 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00047492980957 s ---
+INFO:ase.optimize.precon:mu (0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-145.274) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000108003616333 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 8.60691070557e-05 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 2.8133392334e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 2.88486480713e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00032114982605 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000473976135254 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.0014591217041 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000128030776978 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   3  19:26:32      -12.327837       0.0000       0.0052
+{'info': {}, '_addsorbate_info_size': array([1, 1]), '_celldisp': array([[0.],
+       [0.],
+       [0.]]), '_calc': <utilities.SymmetrizedCalculator instance at 0x11a41dea8>, 'arrays': {'positions': array([[-1.58768655e-29, -1.11487667e-29,  4.51636502e-34],
+       [ 5.51009856e-16,  1.59735977e+00,  2.49214138e+00]]), 'numbers': array([22, 22])}, '_pbc': array([ True,  True,  True]), '_cell': array([[ 2.76670828e+00, -3.39865154e-17,  6.64189876e-34],
+       [-1.38335414e+00,  2.39603966e+00,  6.45462477e-33],
+       [ 9.58145347e-34,  1.07098334e-32,  4.98428275e+00]]), 'millerbasis': array([[ 2.95000000e+00,  0.00000000e+00,  0.00000000e+00],
+       [-1.47500000e+00,  2.55477494e+00,  0.00000000e+00],
+       [ 2.86849020e-16,  4.96837076e-16,  4.68460000e+00]]), '_constraints': []}
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 9.3936920166e-05 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000115156173706 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.50475311279e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00046181678772 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000968933105469 s ---
+INFO:ase.optimize.precon:mu (-0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-143.420) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000174045562744 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000195026397705 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 4.6968460083e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 5.50746917725e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000534057617188 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000525951385498 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00224781036377 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000133037567139 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.989, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.453, suff_dec = True
+PreconLBFGS:   4  19:26:32      -12.328110       0.0000       0.0007
+{'info': {}, '_addsorbate_info_size': array([1, 1]), '_celldisp': array([[0.],
+       [0.],
+       [0.]]), '_calc': <utilities.SymmetrizedCalculator instance at 0x11a41dea8>, 'arrays': {'positions': array([[-1.99507135e-29, -1.36165934e-29,  1.94830102e-34],
+       [ 5.51080110e-16,  1.59756344e+00,  2.48486782e+00]]), 'numbers': array([22, 22])}, '_pbc': array([ True,  True,  True]), '_cell': array([[ 2.76706104e+00, -4.32019077e-17,  1.53600643e-33],
+       [-1.38353052e+00,  2.39634516e+00,  8.68211492e-33],
+       [ 2.18014767e-33,  1.49737491e-32,  4.96973564e+00]]), 'millerbasis': array([[ 2.95000000e+00,  0.00000000e+00,  0.00000000e+00],
+       [-1.47500000e+00,  2.55477494e+00,  0.00000000e+00],
+       [ 2.86849020e-16,  4.96837076e-16,  4.68460000e+00]]), '_constraints': []}
+relaxed bulk
+2
+Lattice="2.767061041947788 -4.320190765473936e-17 1.5360064293624399e-33 -1.3835305209738933 2.396345156149023 8.682114915493775e-33 2.180147668298827e-33 1.4973749067677054e-32 4.969735636982708" Properties=species:S:1:pos:R:3:Z:I:1:forces:R:3 energy=-12.3281098428 stress="0.0005243657008118594 -3.0971930971580907e-19 -3.384823377917357e-35 -3.0971930971580907e-19 0.0005243657008118589 2.9099869598884713e-35 -3.384823377917357e-35 2.9099869598884713e-35 0.0007035441873645178" pbc="T T T"
+Ti      -0.00000000      -0.00000000       0.00000000       22      -0.00000000      -0.00000000      -0.00000000 
+Ti       0.00000000       1.59756344       2.48486782       22       0.00000000       0.00000000       0.00000000 
+calculating elastic constants
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  19:26:32      -12.299273       0.0470
+PreconLBFGS:   0  19:26:32      -12.321083       0.0117
+PreconLBFGS:   0  19:26:32      -12.328110       0.0000
+PreconLBFGS:   0  19:26:32      -12.321832       0.0085
+PreconLBFGS:   0  19:26:32      -12.307581       0.0403
+PreconLBFGS:   0  19:26:32      -12.306785       0.0081
+PreconLBFGS:   0  19:26:32      -12.323199       0.0032
+PreconLBFGS:   0  19:26:32      -12.328110       0.0000
+PreconLBFGS:   0  19:26:33      -12.324190       0.0065
+PreconLBFGS:   0  19:26:33      -12.317593       0.0235
+Fitting C_11
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-11.40774117,  -5.65836036,   0.08401265,   4.62286545,
+         6.65231581]) GPa
+Cij (gradient) / GPa    :     464.01339769593886
+Error in Cij / GPa      :     44.58197363504784
+Correlation coefficient :     0.9864343394405037
+Setting C11 (1) to 2.896144 +/- 0.278259
+
+
+Fitting C_21
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-5.75633164, -2.57545107,  0.08401265,  1.89699464,  2.4796207 ]) GPa
+Cij (gradient) / GPa    :     209.44350383151516
+Error in Cij / GPa      :     29.76977585472612
+Correlation coefficient :     0.9710068726095108
+Setting C21 (7) to 1.307244 +/- 0.185808
+
+
+Fitting C_31
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-6.61688112, -2.93421902,  0.1127202 ,  1.79108629,  1.44977523]) GPa
+Cij (gradient) / GPa    :     208.58618017165074
+Error in Cij / GPa      :     46.63782349194543
+Correlation coefficient :     0.9325138422601013
+Setting C31 (8) to 1.301893 +/- 0.291090
+
+
+Fitting C_61
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([2.37867274e-12, 9.98934549e-13, 2.52049586e-12, 2.35030012e-13,
+       1.69352591e-12]) GPa
+Cij (gradient) / GPa    :     -2.1341981966032084e-11
+Error in Cij / GPa      :     3.278884006508641e-11
+Correlation coefficient :     -0.3517737149558876      <----- WARNING
+Setting C61 (0) to -0.000000 +/- 0.000000
+
+
+Fitting C_44
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-2.42080454e+00, -1.37844054e+00, -4.47007816e-16,  9.69151514e-01,
+        8.40670487e-01]) GPa
+Cij (gradient) / GPa    :     88.7054211106206
+Error in Cij / GPa      :     15.770879311571337
+Correlation coefficient :     0.9557123948827246
+Setting C44 (4) to 0.553656 +/- 0.098434
+
+
+Fitting C_33
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-7.60315526, -3.47884157,  0.1127202 ,  1.92599832,  0.99392199]) GPa
+Cij (gradient) / GPa    :     225.98994391026866
+Error in Cij / GPa      :     59.41515714792354
+Correlation coefficient :     0.910082013435678
+Setting C33 (3) to 1.410518 +/- 0.370840
+
+
+Fitting C_66
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-3.12207998e+00, -1.62392878e+00,  2.52049586e-12,  1.26756971e+00,
+        1.84257305e+00]) GPa
+Cij (gradient) / GPa    :     128.20804552285364
+Error in Cij / GPa      :     11.744815263050972
+Correlation coefficient :     0.9876449094105427
+Setting C66 (6) to 0.800212 +/- 0.073305
+
+
+[[ C11  C12  C13               ]
+ [ C12  C11  C13               ]
+ [ C13  C13  C33               ]
+ [                C44          ]
+ [                     C44     ]
+ [                          C66]]
+
+ = 
+
+[[464.01 209.44 208.59   0.     0.     0.  ]
+ [209.44 464.01 208.59   0.     0.     0.  ]
+ [208.59 208.59 225.99   0.     0.     0.  ]
+ [  0.     0.     0.    88.71   0.     0.  ]
+ [  0.     0.     0.     0.    88.71   0.  ]
+ [  0.     0.     0.     0.     0.   128.21]]
+C_11 = 464.01 +/- 44.58 GPa
+C_12 = 209.44 +/- 29.77 GPa
+C_13 = 208.59 +/- 46.64 GPa
+C_33 = 225.99 +/- 59.42 GPa
+C_44 = 88.71 +/- 15.77 GPa
+C_66 = 128.21 +/- 11.74 GPa
+calculating E vs. V
+bulk going into E vs. V
+2
+Lattice="2.767061041947788 -4.320190765473936e-17 1.5360064293624399e-33 -1.3835305209738933 2.396345156149023 8.682114915493775e-33 2.180147668298827e-33 1.4973749067677054e-32 4.969735636982708" Properties=species:S:1:pos:R:3:Z:I:1 pbc="T T T"
+Ti      -0.00000000      -0.00000000       0.00000000       22 
+Ti       0.00000000       1.59756344       2.48486782       22 
+doing volume step 0
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 0
+done evaluate step 0
+EV  0 32.953488676357175 -12.3281098428 [ 5.24365701e-04  5.24365701e-04  7.03544187e-04 -4.82512657e-15
+  8.66038100e-15  1.31590000e-15]
+doing volume step -1
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -1
+done evaluate step -1
+EV  -1 32.128602681379405 -12.3063852733 [-5.68442523e-02 -5.68442523e-02 -5.67280079e-02 -7.85707871e-16
+ -2.54264397e-15 -1.20056910e-14]
+doing volume step -2
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -2
+done evaluate step -2
+EV  -2 31.30366335765209 -12.2354757292 [-1.09732332e-01 -1.09732332e-01 -1.09728262e-01 -6.00930989e-16
+ -5.54714054e-16 -1.97494732e-14]
+doing volume step -3
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -3
+done evaluate step -3
+EV  -3 30.473123703658047 -12.1321124832 [-1.35528946e-01 -1.35528946e-01 -1.35341827e-01 -9.43383347e-16
+ -2.45751020e-15 -1.12424621e-14]
+doing volume step -4
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -4
+done evaluate step -4
+EV  -4 29.65260240394462 -12.0122445233 [-1.60166064e-01 -1.60166064e-01 -1.60079983e-01  6.02109748e-15
+ -5.24454778e-15 -1.11949832e-16]
+doing volume step -5
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step -5
+done evaluate step -5
+EV  -5 28.744340686983588 -11.9747491629 [-1.38600924e-01 -1.38600924e-01 -1.38563818e-01  6.91268007e-15
+ -2.57077794e-15  1.62657855e-14]
+doing volume step 1
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 1
+done evaluate step 1
+EV  1 33.749511389031696 -12.3261154041 [-2.48732432e-04 -2.48732432e-04 -2.55642431e-04 -4.22918856e-16
+ -4.70679698e-15  4.60955514e-16]
+doing volume step 2
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 2
+done evaluate step 2
+EV  2 34.60107200321289 -12.3077779855 [ 4.18221537e-02  4.18221537e-02  4.17183018e-02  2.00539853e-18
+ -6.11646553e-18 -1.15479515e-14]
+doing volume step 3
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 3
+done evaluate step 3
+EV  3 35.42399223341518 -12.2616325931 [ 6.55990996e-02  6.55990996e-02  6.54337160e-02 -1.95881194e-19
+ -4.30938627e-18 -2.06764929e-15]
+doing volume step 4
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 4
+done evaluate step 4
+EV  4 36.24461349907473 -12.20739231 [ 7.17139128e-02  7.17139128e-02  7.16035584e-02 -6.70770088e-15
+ -7.46099385e-15 -1.66442028e-14]
+doing volume step 5
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 5
+done evaluate step 5
+EV  5 37.071437628447235 -12.1445042475 [8.03950569e-02 8.03950569e-02 8.03280710e-02 3.56252620e-15
+ 1.88247867e-15 5.97225730e-15]
+doing volume step 6
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+done relaxing step 6
+done evaluate step 6
+EV  6 37.896048945746486 -12.074432399 [ 8.65139270e-02  8.65139270e-02  8.65005165e-02 -1.87907992e-14
+  2.36123227e-15  2.25685905e-15]
+EV_final  14.372170343491794 -5.98737458143
+EV_final  14.82630120197231 -6.00612226165
+EV_final  15.236561851829023 -6.06605624158
+EV_final  15.651831678826046 -6.11773786459
+EV_final  16.064301340689703 -6.15319263664
+EV_final  16.476744338178587 -6.16405492141
+EV_final  16.874755694515848 -6.16305770206
+EV_final  17.300536001606446 -6.15388899275
+EV_final  17.71199611670759 -6.13081629657
+EV_final  18.122306749537366 -6.10369615501
+EV_final  18.535718814223618 -6.07225212374
+EV_final  18.948024472873243 -6.03721619948
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'hcp_c44': '88.7054211106206', 'hcp_c13': '208.58618017165074', 'hcp_c12': '209.44350383151516', 'hcp_c11': '464.01339769593886', 'hcp_E_vs_V': [('14.372170343491794', -5.98737458142941), ('14.82630120197231', -6.00612226165198), ('15.236561851829023', -6.066056241582438), ('15.651831678826046', -6.1177378645927325), ('16.064301340689703', -6.153192636641189), ('16.476744338178587', -6.164054921410873), ('16.874755694515848', -6.1630577020611925), ('17.300536001606446', -6.153888992752183), ('17.71199611670759', -6.130816296571371), ('18.122306749537366', -6.103696155009503), ('18.535718814223618', -6.072252123737698), ('18.948024472873243', -6.03721619948161)], 'hcp_c66': '128.20804552285364', 'hcp_c33': '225.98994391026866'}
+============================================================

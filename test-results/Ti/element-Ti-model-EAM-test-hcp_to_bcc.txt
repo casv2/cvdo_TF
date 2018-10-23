@@ -1,0 +1,21 @@
+Model EAM, Test hcp_to_bcc
+Test run at 2018-10-11 20:23
+
+model file: ../../../models/Ti/EAM/model.py
+============================================================
+from ase.calculators.eam import EAM
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(model_dir, 'Zope-Ti-Al-2003.eam.alloy')
+
+calculator = EAM(potential=filename)
+
+no_checkpoint = True
+name = 'EAM'============================================================
+test file: ../../../tests/Ti/hcp_to_bcc/test.py
+============================================================
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 88, in <module>
+    sys.stdout.write(open(test_file).read())
+IOError: [Errno 2] No such file or directory: '../../../tests/Ti/hcp_to_bcc/test.py'

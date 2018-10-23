@@ -1,0 +1,513 @@
+Model GAP_4b, Test bulk_omega
+Test run at 2018-09-03 19:46
+
+model file: ../../../models/Ti/GAP_4b/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_6_26_60_20_15_36_820"',
+                                               param_filename='gp_4b_no_wire_surface.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_6_26_60_20_15_36_820"',
+                                               param_filename='gp_4b_no_wire_surface.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Ti/bulk_omega/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.hexagonal import HexagonalClosedPacked
+from math import sqrt
+
+import numpy as np
+import lattice_tetragonal
+
+# the current model
+import model 
+
+#c_over_a = 1.8
+#a0 = (16.0*2*2/sqrt(3.0)/c_over_a)**(1.0/3.0)# initial guess at lattice constant, cell will be relaxed below
+
+#c_over_a = 1.588
+#a0 = 2.95
+
+def create_omega_custom(c_vs_a, a, z):
+   import quippy
+
+   #a = (2 * V / (3.0**(0.5) * c_vs_a))**(1.0/3.0)
+   c = c_vs_a * a
+
+   lattice = []
+   lattice.append([3.0**(0.5) /2.0 * a,-a/2.0,0])
+   lattice.append([3.0**(0.5) /2.0 * a, a/2.0,0])
+   lattice.append([0,0,c])
+   lattice = np.transpose(lattice)
+   unitcell = quippy.Atoms(n=0, lattice=lattice)
+
+   pos = []
+   pos.append([3.0**(0.5) /6.0 * a,0,0.0])
+   pos.append([3.0**(0.5) /2.0 * a,0,c/2.0])
+   pos.append([3.0**(0.5) * 5.0/6.0 * a,0,c/2.0])
+
+   for i in range(0,len(pos)):
+      unitcell.add_atoms(pos[i],z)
+
+   return unitcell
+
+# set up the a
+#bulk = HexagonalClosedPacked(symbol='Ti', latticeconstant=(a0,a0*c_over_a))
+
+c_vs_a = 0.610
+a = 4.630
+
+bulk = create_omega_custom(c_vs_a, a, 22)
+
+(c11, c33, c12, c13, c44, c66, E_vs_V) = lattice_tetragonal.do_lattice(bulk, elastic=True)#, tol=1.0e-2)
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+#properties = {'hcp_E_vs_V': E_vs_V }
+
+properties = {'omega_c11': c11, 'omega_c33': c33, 'omega_c12': c12, 'omega_c13': c13, 'omega_c44': c44, 'omega_c66': c66, 'omega_E_vs_V': E_vs_V }
+============================================================
+unrelaxed bulk
+3
+Lattice="4.00969761952195 -2.315 0.0 4.00969761952195 2.315 0.0 0.0 0.0 2.8243" Properties=species:S:1:pos:R:3:Z:I:1 pbc="T T T"
+Ti       1.33656587       0.00000000       0.00000000       22 
+Ti       4.00969762       0.00000000       1.41215000       22 
+Ti       6.68282937       0.00000000       1.41215000       22 
+relax_atoms_cell using method lbfgs_precon
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  19:46:38      -18.287593       0.0000       0.1237
+{'_fpointer': array([371109376,     32651], dtype=int32), '_ase_arrays': {'force': array([[ 8.84708973e-17, -4.51028104e-17, -1.73472348e-17],
+       [-5.24943587e-14, -2.03829942e-17,  5.24753846e-17],
+       [ 5.13512844e-14,  3.46944660e-17,  1.90819582e-17]]), 'positions': array([[1.33656587, 0.        , 0.        ],
+       [4.00969762, 0.        , 1.41215   ],
+       [6.68282937, 0.        , 1.41215   ]]), 'map_shift': array([[ 0,  0,  0],
+       [-1, -1, -1],
+       [-1, -1, -1]], dtype=int32), 'numbers': array([22, 22, 22], dtype=int32), 'n_neighb': array([70, 70, 70], dtype=int32), 'species': array([['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']], dtype='|S1')}, '_celldisp': array([[0.],
+       [0.],
+       [0.]]), 'hysteretic_neighbours': <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, '_update_hooks': [], '_calc': <utilities.SymmetrizedCalculator instance at 0x12660d488>, 'neighbours': <Connection object at 0x126603910 fpointer=(371110616, 32651)>, '_subobjs_cache': {(371109600, 32651): Dictionary('Z="22 22 22" pos="1.3365658731739836 0.0 0.0 4.00969761952195 0.0 1.41215 6.682829365869917 0.0 1.41215" species="T i                 T i                 T i                " map_shift="0 0 0 -1 -1 -1 -1 -1 -1" n_neighb="70 70 70" force="8.847089727481716e-17 -4.5102810375396984e-17 -1.734723475976807e-17 -5.2494358747114686e-14 -2.0382994225282583e-17 5.247538464312306e-17 5.135128439590066e-14 3.469446595231975e-17 1.9081958235744878e-17"'), (371111088, 32651): <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, (371109712, 32651): Dictionary('virial="-6.487110551211937 6.336077496005288e-16 7.784571598445922e-17 1.0226195023232176e-15 -6.487110551210985 1.6479873021779667e-17 1.4745149492202878e-16 2.393918396847994e-16 -1.5813173471447683" energy=-18.2875930275'), (371110616, 32651): <Connection object at 0x126603910 fpointer=(371110616, 32651)>}, '_initialised': True, '_constraints': [], '_finalise': True}
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.00 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=2.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=4.24 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): got r_NN=2.824 in 0.00142693519592 s
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000272035598755 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 9.98973846436e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 4.31537628174e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000585794448853 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000693798065186 s ---
+INFO:ase.optimize.precon:mu (0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (0.179) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000257015228271 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 9.60826873779e-05 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 3.69548797607e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.2901763916e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000343799591064 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000594854354858 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00182700157166 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000205993652344 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.100, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.030, suff_dec = True
+PreconLBFGS:   1  19:48:20      -18.487472       0.0000       0.0417
+{'_fpointer': array([371109376,     32651], dtype=int32), '_ase_arrays': {'force': array([[-4.45823921e-15,  5.03073206e-16, -4.54220003e-14],
+       [-2.14036984e-13,  6.35342953e-17,  2.26834614e-14],
+       [ 2.19081696e-13, -3.85975975e-16,  2.25999779e-14]]), 'positions': array([[ 1.30738958e+00, -1.49416811e-32, -7.68682350e-36],
+       [ 3.92216873e+00, -1.50958914e-32,  1.40463570e+00],
+       [ 6.53694789e+00, -1.50958914e-32,  1.40463570e+00]]), 'map_shift': array([[ 0,  0,  0],
+       [-1, -1, -1],
+       [-1, -1, -1]], dtype=int32), 'numbers': array([22, 22, 22], dtype=int32), 'n_neighb': array([70, 76, 76], dtype=int32), 'species': array([['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']], dtype='|S1')}, '_celldisp': array([[0.],
+       [0.],
+       [0.]]), 'hysteretic_neighbours': <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, '_update_hooks': [], '_calc': <utilities.SymmetrizedCalculator instance at 0x12660d488>, 'neighbours': <Connection object at 0x126603910 fpointer=(371110616, 32651)>, '_subobjs_cache': {(371109600, 32651): Dictionary('Z="22 22 22" pos="1.3073895781448879 -1.4941681143628928e-32 -7.686823504019213e-36 3.9221687344346634 -1.5095891404693975e-32 1.4046357032776404 6.53694789072444 -1.5095891404693975e-32 1.4046357032776404" species="T i                 T i                 T i                " map_shift="0 0 0 -1 -1 -1 -1 -1 -1" n_neighb="70 76 76" force="-4.45823920587458e-15 5.030732060916343e-16 -4.54220003362194e-14 -2.1403698436971394e-13 6.353429528412609e-17 2.2683461402589943e-14 2.1908169568082159e-13 -3.85975975007502e-16 2.2599977868542316e-14"'), (371111088, 32651): <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, (371109712, 32651): Dictionary('virial="-0.9073510421755321 -1.5536617142057036e-16 -1.0515893645196956e-14 -5.298699242445932e-17 -0.9073510421753241 3.2508449887953523e-16 -1.0236820008155314e-14 -2.7321856075941075e-17 2.08131360294406" energy=-18.4874724618'), (371110616, 32651): <Connection object at 0x126603910 fpointer=(371110616, 32651)>}, '_initialised': True, '_constraints': [], '_finalise': True}
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000264167785645 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 9.58442687988e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.60012054443e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000380992889404 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000494003295898 s ---
+INFO:ase.optimize.precon:mu (0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-157.777) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000228881835938 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 8.98838043213e-05 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 3.00407409668e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.00407409668e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000311851501465 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000505924224854 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00164389610291 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000140905380249 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.113, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.034, suff_dec = True
+PreconLBFGS:   2  19:48:21      -18.498377       0.0000       0.0082
+{'_fpointer': array([371109376,     32651], dtype=int32), '_ase_arrays': {'force': array([[ 5.28179927e-15,  3.98988127e-16, -2.18054736e-15],
+       [ 2.18621455e-13,  1.94614302e-16,  1.17527516e-15],
+       [-2.25288539e-13, -2.69749518e-16,  1.13971331e-15]]), 'positions': array([[ 1.30335391e+00, -1.43327012e-32,  8.35353305e-34],
+       [ 3.91006172e+00, -2.59480306e-22,  1.41716230e+00],
+       [ 6.51676953e+00, -2.59480306e-22,  1.41716230e+00]]), 'map_shift': array([[ 0,  0,  0],
+       [-1, -1, -1],
+       [-1, -1, -1]], dtype=int32), 'numbers': array([22, 22, 22], dtype=int32), 'n_neighb': array([70, 76, 76], dtype=int32), 'species': array([['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']], dtype='|S1')}, '_celldisp': array([[0.],
+       [0.],
+       [0.]]), 'hysteretic_neighbours': <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, '_update_hooks': [], '_calc': <utilities.SymmetrizedCalculator instance at 0x12660d488>, 'neighbours': <Connection object at 0x126603910 fpointer=(371110616, 32651)>, '_subobjs_cache': {(371109600, 32651): Dictionary('Z="22 22 22" pos="1.3033539054511445 -1.4332701155237876e-32 8.353533054683504e-34 3.910061716353433 -2.5948030559461484e-22 1.4171622955195187 6.516769527255722 -2.5948030559230067e-22 1.4171622955195187" species="T i                 T i                 T i                " map_shift="0 0 0 -1 -1 -1 -1 -1 -1" n_neighb="70 76 76" force="5.28179926563687e-15 3.9898812735156763e-16 -2.1805473616365637e-15 2.1862145455810542e-13 1.9461430154167662e-16 1.175275162005322e-15 -2.2528853902653608e-13 -2.6974951752329485e-16 1.1397133104818725e-15"'), (371111088, 32651): <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, (371109712, 32651): Dictionary('virial="0.03464568879041119 2.76254700986501e-16 3.7296556175897546e-16 6.960747962900702e-17 0.0346456887920481 -1.049372380870646e-16 1.8691643913026206e-16 3.3306697159720175e-16 -0.4080214110507563" energy=-18.4983773758'), (371110616, 32651): <Connection object at 0x126603910 fpointer=(371110616, 32651)>}, '_initialised': True, '_constraints': [], '_finalise': True}
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000224828720093 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 9.51290130615e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.40938568115e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000370025634766 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000499963760376 s ---
+INFO:ase.optimize.precon:mu (0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-155.967) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000221014022827 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 8.79764556885e-05 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 2.8133392334e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 2.90870666504e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000312089920044 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000549077987671 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00182509422302 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000127077102661 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   3  19:48:22      -18.498577       0.0000       0.0029
+{'_fpointer': array([371109376,     32651], dtype=int32), '_ase_arrays': {'force': array([[-1.50279067e-14,  4.68378278e-16,  9.09862450e-16],
+       [ 6.12583450e-14, -1.25225313e-16, -6.76542162e-16],
+       [-4.60742591e-14, -3.81639161e-16, -5.06539268e-16]]), 'positions': array([[ 1.30346987e+00, -8.14149108e-31,  3.41589254e-33],
+       [ 3.91040960e+00, -1.29455862e-21,  1.41509749e+00],
+       [ 6.51734934e+00, -1.29455862e-21,  1.41509749e+00]]), 'map_shift': array([[ 0,  0,  0],
+       [-1, -1, -1],
+       [-1, -1, -1]], dtype=int32), 'numbers': array([22, 22, 22], dtype=int32), 'n_neighb': array([70, 76, 76], dtype=int32), 'species': array([['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']], dtype='|S1')}, '_celldisp': array([[0.],
+       [0.],
+       [0.]]), 'hysteretic_neighbours': <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, '_update_hooks': [], '_calc': <utilities.SymmetrizedCalculator instance at 0x12660d488>, 'neighbours': <Connection object at 0x126603910 fpointer=(371110616, 32651)>, '_subobjs_cache': {(371109600, 32651): Dictionary('Z="22 22 22" pos="1.3034698682328918 -8.141491076216613e-31 3.4158925439415024e-33 3.910409604698675 -1.2945586189689923e-21 1.415097485545043 6.517349341164459 -1.2945586189441358e-21 1.415097485545043" species="T i                 T i                 T i                " map_shift="0 0 0 -1 -1 -1 -1 -1 -1" n_neighb="70 76 76" force="-1.5027906718806218e-14 4.683782784178401e-16 9.098624500441925e-16 6.125834496165131e-14 -1.2522531287176758e-16 -6.765421622483997e-16 -4.607425906082945e-14 -3.816391614578739e-16 -5.065392682201175e-16"'), (371111088, 32651): <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, (371109712, 32651): Dictionary('virial="0.09796997379256434 -1.213439091608304e-15 1.077696440394757e-16 -9.058509543129473e-16 0.09796997379275818 2.5157220665936143e-16 4.922276226300553e-16 5.1174811241295503e-17 0.14321878088404116" energy=-18.4985768713'), (371110616, 32651): <Connection object at 0x126603910 fpointer=(371110616, 32651)>}, '_initialised': True, '_constraints': [], '_finalise': True}
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000267028808594 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000125169754028 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.91006469727e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000391960144043 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000505924224854 s ---
+INFO:ase.optimize.precon:mu (0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-153.628) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000278949737549 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 9.58442687988e-05 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 3.60012054443e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.09944152832e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000331878662109 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000481128692627 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00171995162964 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000128030776978 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   4  19:48:23      -18.498609       0.0000       0.0011
+{'_fpointer': array([371109376,     32651], dtype=int32), '_ase_arrays': {'force': array([[-6.17041108e-14, -1.35311833e-16, -2.23814041e-14],
+       [ 8.62201461e-14, -7.76288507e-17, -1.82998141e-14],
+       [-2.31377433e-14, -3.17888076e-16,  4.10418238e-14]]), 'positions': array([[ 1.30383044e+00, -1.25885897e-30,  2.87284550e-33],
+       [ 3.91149131e+00,  1.47328679e-19,  1.41549970e+00],
+       [ 6.51915218e+00,  1.47328679e-19,  1.41549970e+00]]), 'map_shift': array([[ 0,  0,  0],
+       [-1, -1, -1],
+       [-1, -1, -1]], dtype=int32), 'numbers': array([22, 22, 22], dtype=int32), 'n_neighb': array([70, 76, 76], dtype=int32), 'species': array([['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']], dtype='|S1')}, '_celldisp': array([[0.],
+       [0.],
+       [0.]]), 'hysteretic_neighbours': <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, '_update_hooks': [], '_calc': <utilities.SymmetrizedCalculator instance at 0x12660d488>, 'neighbours': <Connection object at 0x126603910 fpointer=(371110616, 32651)>, '_subobjs_cache': {(371109600, 32651): Dictionary('Z="22 22 22" pos="1.303830436939554 -1.2588589744572134e-30 2.872845500377627e-33 3.9114913108186617 1.4732867909022045e-19 1.4154997008412882 6.51915218469777 1.4732867909030952e-19 1.4154997008412882" species="T i                 T i                 T i                " map_shift="0 0 0 -1 -1 -1 -1 -1 -1" n_neighb="70 76 76" force="-6.17041107777328e-14 -1.3531183269681797e-16 -2.2381404107573896e-14 8.622014608326153e-14 -7.762885073454374e-17 -1.829981411321763e-14 -2.313774325361242e-14 -3.1788807591292474e-16 4.104182382986602e-14"'), (371111088, 32651): <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, (371109712, 32651): Dictionary('virial="-0.05559583421541392 -6.967082699755648e-16 3.758581900969902e-14 3.2114749508276863e-16 -0.05559583421524983 9.97533865108038e-17 3.739110460630406e-14 -5.729030130165415e-17 -0.002414660943744096" energy=-18.4986086624'), (371110616, 32651): <Connection object at 0x126603910 fpointer=(371110616, 32651)>}, '_initialised': True, '_constraints': [], '_finalise': True}
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000224113464355 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 9.48905944824e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.50475311279e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000378847122192 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00049090385437 s ---
+INFO:ase.optimize.precon:mu (-0.000) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-154.458) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000226020812988 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 8.79764556885e-05 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 2.78949737549e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.00407409668e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000308990478516 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000481843948364 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00160503387451 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000128030776978 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   5  19:48:24      -18.498615       0.0000       0.0002
+{'_fpointer': array([371109376,     32651], dtype=int32), '_ase_arrays': {'force': array([[ 9.63638931e-16,  7.98056914e-17, -2.60208535e-14],
+       [-2.41007289e-15, -2.98155606e-16,  1.06414450e-14],
+       [ 2.04003473e-15, -8.10983672e-17,  1.52655673e-14]]), 'positions': array([[ 1.30365741e+00, -9.95712084e-31, -7.63773403e-31],
+       [ 3.91097223e+00,  1.56116539e-19,  1.41559036e+00],
+       [ 6.51828705e+00,  1.56116539e-19,  1.41559036e+00]]), 'map_shift': array([[ 0,  0,  0],
+       [-1, -1, -1],
+       [-1, -1, -1]], dtype=int32), 'numbers': array([22, 22, 22], dtype=int32), 'n_neighb': array([70, 76, 76], dtype=int32), 'species': array([['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+       ['T', 'i', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']], dtype='|S1')}, '_celldisp': array([[0.],
+       [0.],
+       [0.]]), 'hysteretic_neighbours': <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, '_update_hooks': [], '_calc': <utilities.SymmetrizedCalculator instance at 0x12660d488>, 'neighbours': <Connection object at 0x126603910 fpointer=(371110616, 32651)>, '_subobjs_cache': {(371109600, 32651): Dictionary('Z="22 22 22" pos="1.3036574104848462 -9.957120843931699e-31 -7.6377340331421385e-31 3.910972231454538 1.56116538882362e-19 1.4155903572251642 6.51828705242423 1.5611653888247017e-19 1.4155903572251642" species="T i                 T i                 T i                " map_shift="0 0 0 -1 -1 -1 -1 -1 -1" n_neighb="70 76 76" force="9.636389308682797e-16 7.980569139120552e-17 -2.6020853496047365e-14 -2.4100728872088875e-15 -2.9815560570531984e-16 1.0641444997924606e-14 2.0400347343105964e-15 -8.109836716966881e-17 1.5265567263575282e-14"'), (371111088, 32651): <Connection object at 0x1266038d0 fpointer=(371111088, 32651)>, (371109712, 32651): Dictionary('virial="0.0038537166162386782 -4.0766000372305744e-16 3.954952823552171e-15 -6.921495969041344e-16 0.0038537166168035597 -1.5653508676949002e-16 3.5180278861987953e-15 -3.647640449178426e-17 -0.007864896536966759" energy=-18.4986152035'), (371110616, 32651): <Connection object at 0x126603910 fpointer=(371110616, 32651)>}, '_initialised': True, '_constraints': [], '_finalise': True}
+relaxed bulk
+3
+Lattice="3.910972231454538 -2.258000870623429 -2.6182088218939373e-19 3.910972231454538 2.258000870623429 2.6182088218900257e-19 -1.3401896775125096e-31 3.122330777668398e-19 2.831180714450329" Properties=species:S:1:pos:R:3:Z:I:1:map_shift:I:3:n_neighb:I:1:force:R:3:forces:R:3 virial="0.0038537166162386782 -4.0766000372305744e-16 3.954952823552171e-15 -6.921495969041344e-16 0.0038537166168035597 -1.5653508676949002e-16 3.5180278861987953e-15 -3.647640449178426e-17 -0.007864896536966759" energy=-18.4986152035 stress="-7.706786912489538e-05 -2.143471974538516e-20 -7.477236652471742e-34 -2.143471974538516e-20 -7.706786912489544e-05 2.2720467305497137e-36 -7.477236652471742e-34 2.2720467305497137e-36 0.0001572847402409605" pbc="T T T"
+Ti       1.30365741      -0.00000000      -0.00000000       22        0        0        0       70       0.00000000       0.00000000      -0.00000000       0.00000000       0.00000000       0.00000000 
+Ti       3.91097223       0.00000000       1.41559036       22       -1       -1       -1       76      -0.00000000      -0.00000000       0.00000000      -0.00000000      -0.00000000      -0.00000000 
+Ti       6.51828705       0.00000000       1.41559036       22       -1       -1       -1       76       0.00000000      -0.00000000       0.00000000       0.00000000       0.00000000       0.00000000 
+calculating elastic constants
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  19:48:25      -18.433685       0.0254
+PreconLBFGS:   0  19:48:26      -18.479937       0.0165
+PreconLBFGS:   0  19:48:26      -18.498615       0.0000
+PreconLBFGS:   0  19:48:27      -18.479649       0.0194
+PreconLBFGS:   0  19:48:27      -18.430987       0.0270
+PreconLBFGS:   0  19:48:28      -18.430274       0.0400
+PreconLBFGS:   0  19:48:28      -18.477926       0.0007
+PreconLBFGS:   0  19:48:29      -18.498615       0.0000
+PreconLBFGS:   0  19:48:30      -18.477085       0.0041
+PreconLBFGS:   0  19:48:30      -18.433708       0.0189
+Fitting C_11
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-1.66946101e+01, -9.48239397e+00, -1.23476338e-02,  1.02104786e+01,
+        1.71987765e+01]) GPa
+Cij (gradient) / GPa    :     874.796456849695
+Error in Cij / GPa      :     32.203858584282735
+Correlation coefficient :     0.997973384940805
+Setting C11 (1) to 5.460050 +/- 0.201001
+
+
+Fitting C_21
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-7.19144363, -3.82276781, -0.01234763,  3.85674218,  6.26141992]) GPa
+Cij (gradient) / GPa    :     345.85237106032827
+Error in Cij / GPa      :     14.50870839849673
+Correlation coefficient :     0.997370629809538
+Setting C21 (7) to 2.158641 +/- 0.090556
+
+
+Fitting C_31
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-3.70108753, -1.59321542,  0.02519979,  2.28488592,  2.11761466]) GPa
+Cij (gradient) / GPa    :     155.1550571514434
+Error in Cij / GPa      :     23.935490011203598
+Correlation coefficient :     0.9661064570161539
+Setting C31 (8) to 0.968402 +/- 0.149394
+
+
+Fitting C_61
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-1.14821739e-13,  1.61901815e-14,  2.21770582e-15, -1.14031393e-13,
+       -6.10702294e-13]) GPa
+Cij (gradient) / GPa    :     -1.1219826836408954e-11
+Error in Cij / GPa      :     6.798783035488648e-12
+Correlation coefficient :     -0.6898080794253121      <----- WARNING
+Setting C61 (0) to -0.000000 +/- 0.000000
+
+
+Fitting C_44
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-1.85153840e+00, -1.46364572e+00,  1.16873484e-16,  1.37389079e+00,
+        1.81103854e+00]) GPa
+Cij (gradient) / GPa    :     101.62690406937325
+Error in Cij / GPa      :     11.640001128658856
+Correlation coefficient :     0.9808844642466826
+Setting C44 (4) to 0.634305 +/- 0.072651
+
+
+Fitting C_33
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-11.6839459 ,  -8.84408192,   0.02519979,   8.09407942,
+        11.12905704]) GPa
+Cij (gradient) / GPa    :     625.6416722380773
+Error in Cij / GPa      :     64.15611162800313
+Correlation coefficient :     0.9845905757777828
+Setting C33 (3) to 3.904948 +/- 0.400431
+
+
+Fitting C_66
+Strain array([-0.02, -0.01,  0.  ,  0.01,  0.02])
+Stress array([-5.89523086e+00, -3.28466888e+00,  2.21770582e-15,  3.03281706e+00,
+        5.33887463e+00]) GPa
+Cij (gradient) / GPa    :     287.8569691683803
+Error in Cij / GPa      :     9.166668094213817
+Correlation coefficient :     0.9984823513502257
+Setting C66 (6) to 1.796662 +/- 0.057214
+
+
+[[ C11  C12  C13               ]
+ [ C12  C11  C13               ]
+ [ C13  C13  C33               ]
+ [                C44          ]
+ [                     C44     ]
+ [                          C66]]
+
+ = 
+
+[[874.8  345.85 155.16   0.     0.     0.  ]
+ [345.85 874.8  155.16   0.     0.     0.  ]
+ [155.16 155.16 625.64   0.     0.     0.  ]
+ [  0.     0.     0.   101.63   0.     0.  ]
+ [  0.     0.     0.     0.   101.63   0.  ]
+ [  0.     0.     0.     0.     0.   287.86]]
+C_11 = 874.80 +/- 32.20 GPa
+C_12 = 345.85 +/- 14.51 GPa
+C_13 = 155.16 +/- 23.94 GPa
+C_33 = 625.64 +/- 64.16 GPa
+C_44 = 101.63 +/- 11.64 GPa
+C_66 = 287.86 +/- 9.17 GPa
+calculating E vs. V
+bulk going into E vs. V
+3
+Lattice="3.910972231454538 -2.258000870623429 -2.6182088218939373e-19 3.910972231454538 2.258000870623429 2.6182088218900257e-19 -1.3401896775125096e-31 3.122330777668398e-19 2.831180714450329" Properties=species:S:1:pos:R:3:Z:I:1:map_shift:I:3:n_neighb:I:1:force:R:3 virial="0.0038537166162386782 -4.0766000372305744e-16 3.954952823552171e-15 -6.921495969041344e-16 0.0038537166168035597 -1.5653508676949002e-16 3.5180278861987953e-15 -3.647640449178426e-17 -0.007864896536966759" energy=-18.4986152035 pbc="T T T"
+Ti       1.30365741      -0.00000000      -0.00000000       22        0        0        0       70       0.00000000       0.00000000      -0.00000000 
+Ti       3.91097223       0.00000000       1.41559036       22       -1       -1       -1       76      -0.00000000      -0.00000000       0.00000000 
+Ti       6.51828705       0.00000000       1.41559036       22       -1       -1       -1       76       0.00000000      -0.00000000       0.00000000 
+doing volume step 0
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step 0
+done evaluate step 0
+EV  0 50.004193167103004 -18.4986153467 [ 8.41195639e-06  8.41195639e-06  2.23501533e-06  2.44669848e-18
+  5.41535237e-15 -2.57598348e-18]
+doing volume step -1
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step -1
+done evaluate step -1
+EV  -1 48.75351198317593 -18.4495943844 [-6.82210261e-02 -6.82210261e-02 -6.82179638e-02  7.09286951e-18
+ -7.12577152e-15  6.91937813e-18]
+doing volume step -2
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step -2
+done evaluate step -2
+EV  -2 47.460715478611654 -18.3948645109 [ 3.84542709e-02  3.84542709e-02  3.84126845e-02 -4.43957442e-15
+ -3.02741878e-15 -2.18450875e-15]
+doing volume step -3
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step -3
+done evaluate step -3
+EV  -3 46.232466538943264 -18.5026382781 [ 9.06226562e-02  9.06226562e-02  9.06435575e-02  3.84961928e-15
+ -3.26307760e-15 -3.54550598e-15]
+doing volume step -4
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step -4
+done evaluate step -4
+EV  -4 45.002321882551094 -18.5678052834 [ 8.79895201e-03  8.79895201e-03  8.76811777e-03 -5.69232349e-15
+  2.27684692e-15 -1.61199484e-15]
+doing volume step -5
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step -5
+done evaluate step -5
+EV  -5 43.75357069294802 -18.5124758287 [-9.65681386e-02 -9.65681386e-02 -9.67084038e-02 -4.06735150e-15
+ -4.59247365e-15 -1.94017889e-14]
+doing volume step 1
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step 1
+done evaluate step 1
+EV  1 51.25362606752372 -18.4526444878 [ 5.97118211e-02  5.97118211e-02  5.96870146e-02 -5.61745393e-18
+  2.03068834e-18  2.96963648e-16]
+doing volume step 2
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step 2
+done evaluate step 2
+EV  2 52.50269734983405 -18.3582125329 [9.05355189e-02 9.05355189e-02 9.04156299e-02 5.05101918e-16
+ 2.65422292e-15 2.81787219e-15]
+doing volume step 3
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step 3
+done evaluate step 3
+EV  3 53.75403143998857 -18.2297681444 [ 1.13125347e-01  1.13125347e-01  1.13118329e-01  8.50520630e-16
+  3.67147036e-15 -9.43923763e-15]
+doing volume step 4
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step 4
+done evaluate step 4
+EV  4 55.00327850558771 -18.0830517978 [ 1.15000385e-01  1.15000385e-01  1.14917272e-01 -3.51222166e-15
+  3.80999783e-15  3.00467729e-16]
+doing volume step 5
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step 5
+done evaluate step 5
+EV  5 55.89963431406659 -18.1428972958 [-9.17213677e-02 -9.17213677e-02 -9.18014877e-02 -1.83284201e-15
+ -3.02248473e-15 -4.30359717e-15]
+doing volume step 6
+relax_atoms_cell using method cg_n
+symmetry.prep got symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+done relaxing step 6
+done evaluate step 6
+EV  6 57.50476960801566 -18.2550723388 [-4.06449523e-02 -4.06449523e-02 -4.06469403e-02 -1.00552971e-15
+ -4.00407528e-15 -3.08118876e-15]
+EV_final  14.584523564316006 -6.17082527622
+EV_final  15.000773960850365 -6.18926842781
+EV_final  15.410822179647754 -6.16754609271
+EV_final  15.820238492870551 -6.13162150362
+EV_final  16.251170661058644 -6.14986479479
+EV_final  16.668064389034335 -6.16620511557
+EV_final  17.084542022507907 -6.15088149593
+EV_final  17.50089911661135 -6.11940417762
+EV_final  17.91801047999619 -6.07658938146
+EV_final  18.334426168529237 -6.02768393262
+EV_final  18.633211438022197 -6.04763243194
+EV_final  19.16825653600522 -6.08502411293
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'omega_c44': '101.62690406937325', 'omega_c33': '625.6416722380773', 'omega_E_vs_V': [('14.584523564316006', -6.170825276222886), ('15.000773960850365', -6.189268427806165), ('15.410822179647754', -6.167546092706228), ('15.820238492870551', -6.131621503624739), ('16.251170661058644', -6.149864794788382), ('16.668064389034335', -6.166205115574794), ('17.084542022507907', -6.150881495928225), ('17.50089911661135', -6.119404177621463), ('17.91801047999619', -6.076589381458464), ('18.334426168529237', -6.027683932615314), ('18.633211438022197', -6.047632431942376), ('19.16825653600522', -6.085024112930639)], 'omega_c13': '155.1550571514434', 'omega_c11': '874.796456849695', 'omega_c66': '287.8569691683803', 'omega_c12': '345.85237106032827'}
+============================================================

@@ -1,0 +1,255 @@
+Model Ti_Env4B_reg_tmp, Test surface-energy-110-unrelaxed
+Test run at 2018-09-06 14:20
+
+model file: ../../../models/Ti/Ti_Env4B_reg_tmp/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/Ti-Env4B-reg-tmp.jld2")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Ti/surface-energy-110-unrelaxed/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import BodyCenteredCubic
+import numpy as np
+
+import ase.io, sys
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model
+
+a0 = 3.32 # initial guess at lattice constant, cell will be relaxed below
+fmax = 0.01 # maximum force following relaxtion [eV/A]
+
+# set up the a
+bulk = BodyCenteredCubic(symbol='Ti', latticeconstant=a0, directions=[[-1,1,0],[0,0,1],[1,1,0]])
+
+# specify that we will use model.calculator to compute forces, energies and stresses
+bulk.set_calculator(model.calculator)
+# flip coord system for ASE (precon minim?)
+c = bulk.get_cell()
+t_v = c[0,:].copy()
+c[0,:] = c[1,:]
+c[1,:] = t_v
+bulk.set_cell(c)
+
+# use one of the routines from utilities module to relax the initial
+# unit cell and atomic positions
+bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+
+# set up supercell
+bulk *= (1, 1, 10)
+
+ase.io.write(sys.stdout, bulk, format='extxyz')
+
+def surface_energy(bulk, z_offset):
+    Nat = bulk.get_number_of_atoms()
+
+    # shift so cut is through shuffle plane
+    bulk.positions[:,2] += z_offset
+    bulk.wrap()
+
+    # relax atom positions, holding cell fixed
+    # vac = relax_atoms(vac, fmax=fmax)
+
+    # compute surface formation energy as difference of bulk and expanded cell
+    ebulk = bulk.get_potential_energy()
+    print 'bulk cell energy', ebulk
+
+    bulk.cell[2,2] *= (np.abs(bulk.cell[2,2])+10.0)/np.abs(bulk.cell[2,2])
+    eexp  = bulk.get_potential_energy()
+
+    ase.io.write(sys.stdout, bulk, format='extxyz')
+
+    print 'expanded cell energy', eexp
+    e_form = 0.5*(eexp - ebulk) / np.linalg.norm(np.cross(bulk.cell[0,:],bulk.cell[1,:]))
+    print 'unrelaxed 110 surface formation energy', e_form
+    return e_form
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'surface_energy_110_unrelaxed':
+                surface_energy(bulk, 1.0) }
+============================================================
+relax_atoms_cell using method lbfgs_precon
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+/Users/Cas/.local/lib/python2.7/site-packages/ase/atoms.py:763: UserWarning: Converting 3x3 stress tensor from JulipCalculator calculator to the required Voigt form.
+  'calculator to the required Voigt form.')
+PreconLBFGS:   0  14:21:49      -24.014560       0.0000       0.0221
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.00 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=2.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=4.24 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): got r_NN=2.875 in 0.00209712982178 s
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000233888626099 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.00025200843811 s ---
+INFO:ase.optimize.precon:--- remove zeros in 6.98566436768e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000923156738281 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000929117202759 s ---
+INFO:ase.optimize.precon:mu (0.325) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-2.409) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000254154205322 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000180959701538 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 7.39097595215e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 6.50882720947e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000658988952637 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00102806091309 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00310897827148 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000332832336426 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.100, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.024, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.006, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.001, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = True
+PreconLBFGS:   1  14:22:03      -24.014560       0.0000       0.0221
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000157833099365 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000125169754028 s ---
+INFO:ase.optimize.precon:--- remove zeros in 4.60147857666e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000442981719971 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000598907470703 s ---
+INFO:ase.optimize.precon:mu (0.325) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-2.409) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000149011611938 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000113964080811 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 3.69548797607e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 6.19888305664e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000534057617188 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000709056854248 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00225210189819 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.00022292137146 seconds ---
+ERROR:ase.utils.linesearcharmijo:Passed direction which is not downhill. Aborting...
+WARNING:ase.optimize.precon:Armijo linesearch failed, resetting Hessian and trying again
+PreconLBFGS:   2  14:22:09      -24.014560       0.0000       0.0221
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000168085098267 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000144004821777 s ---
+INFO:ase.optimize.precon:--- remove zeros in 5.69820404053e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000570058822632 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000824928283691 s ---
+INFO:ase.optimize.precon:mu (0.325) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-2.409) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000181198120117 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000136852264404 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 4.50611114502e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 5.10215759277e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000484943389893 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00078010559082 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00235199928284 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000191211700439 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = True
+PreconLBFGS:   3  14:22:16      -24.014560       0.0000       0.0221
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000236988067627 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000131130218506 s ---
+INFO:ase.optimize.precon:--- remove zeros in 6.31809234619e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00059700012207 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000907182693481 s ---
+INFO:ase.optimize.precon:mu (0.325) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-2.409) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000177145004272 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000101089477539 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 3.40938568115e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.50475311279e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000363111495972 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000540971755981 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00174593925476 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000130891799927 seconds ---
+ERROR:ase.utils.linesearcharmijo:Passed direction which is not downhill. Aborting...
+WARNING:ase.optimize.precon:Armijo linesearch failed, resetting Hessian and trying again
+PreconLBFGS:   4  14:22:22      -24.014560       0.0000       0.0221
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000155925750732 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.00012993812561 s ---
+INFO:ase.optimize.precon:--- remove zeros in 4.10079956055e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000391960144043 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000527143478394 s ---
+INFO:ase.optimize.precon:mu (0.325) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-2.409) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000131130218506 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 9.20295715332e-05 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 3.09944152832e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 3.19480895996e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000313997268677 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000499963760376 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00154495239258 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000140905380249 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.000, suff_dec = False
+ERROR:ase.optimize.precon:Armijo linesearch failed after reset of Hessian, aborting
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 99, in <module>
+    import test  # import and run the current test
+  File "../../../tests/Ti/surface-energy-110-unrelaxed/test.py", line 41, in <module>
+    bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+  File "../../../share/utilities.py", line 176, in relax_atoms_cell
+    opt.run(tol, max_steps, smax=stol)
+  File "/Users/Cas/.local/lib/python2.7/site-packages/ase/optimize/precon/lbfgs.py", line 353, in run
+    return Optimizer.run(self, fmax, steps)
+  File "/Users/Cas/.local/lib/python2.7/site-packages/ase/optimize/optimize.py", line 179, in run
+    self.step(f)
+  File "/Users/Cas/.local/lib/python2.7/site-packages/ase/optimize/precon/lbfgs.py", line 235, in step
+    self.line_search(r, g, e, previously_reset_hessian)
+  File "/Users/Cas/.local/lib/python2.7/site-packages/ase/optimize/precon/lbfgs.py", line 321, in line_search
+    rotation_factors=self.rotation_factors)
+  File "/Users/Cas/.local/lib/python2.7/site-packages/ase/utils/linesearcharmijo.py", line 305, in run
+    raise RuntimeError('a1 too small, giving up')
+RuntimeError: a1 too small, giving up

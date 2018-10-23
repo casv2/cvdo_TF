@@ -1,0 +1,223 @@
+Model PIP_4BBA_s_c, Test surface-decohesion-100-unrelaxed
+Test run at 2018-10-03 16:05
+
+model file: ../../../models/Si/PIP_4BBA_s_c/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/SiPIP_4BBA_short_cas.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Si/surface-decohesion-100-unrelaxed/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import Diamond
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model 
+
+a0 = 5.44 # initial guess at lattice constant, cell will be relaxed below
+fmax = 0.01 # maximum force following relaxtion [eV/A]
+
+# set up the a
+bulk = Diamond(symbol='Si', latticeconstant=a0)
+
+# specify that we will use model.calculator to compute forces, energies and stresses
+bulk.set_calculator(model.calculator)
+
+# use one of the routines from utilities module to relax the initial
+# unit cell and atomic positions
+bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+
+# set up supercell
+bulk *= (5, 1, 1)
+
+def surface_energy(bulk, opening):
+    Nat = bulk.get_number_of_atoms()
+
+    # relax atom positions, holding cell fixed
+    # vac = relax_atoms(vac, fmax=fmax)
+
+    # compute surface formation energy as difference of bulk and expanded cell
+    ebulk = bulk.get_potential_energy()
+    print 'bulk cell energy', ebulk
+
+    bulk.cell[0,:] += [opening,0.0,0.0]
+    eexp  = bulk.get_potential_energy()
+    
+    print 'expanded cell energy', eexp
+    e_form = (eexp - ebulk) / (bulk.cell[1,1]*bulk.cell[2,2])
+    print 'unrelaxed 100 surface formation energy', e_form
+    return e_form
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+n_steps = 35
+max_opening = 3.5
+
+openings = []
+es = []
+for i in range(n_steps + 1):
+    opening = float(i)/float(n_steps)*max_opening
+    openings.append(opening)
+    bulk_copy = bulk.copy()
+    bulk_copy.set_calculator(model.calculator)
+    es.append(surface_energy(bulk_copy, opening))
+
+print "openings ", openings
+print "es ", es
+from scipy import interpolate
+spline = interpolate.splrep(openings, es, s=0)
+stresses = [x for x in interpolate.splev(openings, spline, der=1)]
+
+print "stresses ", stresses
+properties = {'surface_decohesion_unrelaxed_opening': openings, 'surface_decohesion_unrelaxed_energy' : es, 'surface_decohesion_unrelaxed_stress' : stresses}
+
+============================================================
+relax_atoms_cell using method cg_n
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+/Users/Cas/.local/lib/python2.7/site-packages/ase/atoms.py:763: UserWarning: Converting 3x3 stress tensor from JulipCalculator calculator to the required Voigt form.
+  'calculator to the required Voigt form.')
+bulk cell energy -6526.8931109
+expanded cell energy -6526.8931109
+unrelaxed 100 surface formation energy 0.0
+bulk cell energy -6526.8931109
+expanded cell energy -6526.82092801
+unrelaxed 100 surface formation energy 0.0024357077524571297
+bulk cell energy -6526.8931109
+expanded cell energy -6526.61798589
+unrelaxed 100 surface formation energy 0.009283697552026019
+bulk cell energy -6526.8931109
+expanded cell energy -6526.30236831
+unrelaxed 100 surface formation energy 0.019933758300570727
+bulk cell energy -6526.8931109
+expanded cell energy -6525.88717215
+unrelaxed 100 surface formation energy 0.03394395477615399
+bulk cell energy -6526.8931109
+expanded cell energy -6525.38571085
+unrelaxed 100 surface formation energy 0.05086504464281064
+bulk cell energy -6526.8931109
+expanded cell energy -6524.80384148
+unrelaxed 100 surface formation energy 0.07049938868064178
+bulk cell energy -6526.8931109
+expanded cell energy -6524.1296179
+unrelaxed 100 surface formation energy 0.09325009262403244
+bulk cell energy -6526.8931109
+expanded cell energy -6523.41150973
+unrelaxed 100 surface formation energy 0.11748161904807873
+bulk cell energy -6526.8931109
+expanded cell energy -6522.70676962
+unrelaxed 100 surface formation energy 0.14126205936308567
+bulk cell energy -6526.8931109
+expanded cell energy -6522.04928852
+unrelaxed 100 surface formation energy 0.1634478125832009
+bulk cell energy -6526.8931109
+expanded cell energy -6521.46622013
+unrelaxed 100 surface formation energy 0.18312261606735117
+bulk cell energy -6526.8931109
+expanded cell energy -6520.974654
+unrelaxed 100 surface formation energy 0.19970980737578456
+bulk cell energy -6526.8931109
+expanded cell energy -6520.57559533
+unrelaxed 100 surface formation energy 0.21317546770884221
+bulk cell energy -6526.8931109
+expanded cell energy -6520.25680533
+unrelaxed 100 surface formation energy 0.22393257710040163
+bulk cell energy -6526.8931109
+expanded cell energy -6519.99934186
+unrelaxed 100 surface formation energy 0.23262031121776014
+bulk cell energy -6526.8931109
+expanded cell energy -6519.79156802
+unrelaxed 100 surface formation energy 0.23963134053296062
+bulk cell energy -6526.8931109
+expanded cell energy -6519.63957759
+unrelaxed 100 surface formation energy 0.2447600386831952
+bulk cell energy -6526.8931109
+expanded cell energy -6519.54569596
+unrelaxed 100 surface formation energy 0.2479279389698543
+bulk cell energy -6526.8931109
+expanded cell energy -6519.47811735
+unrelaxed 100 surface formation energy 0.25020828183909677
+bulk cell energy -6526.8931109
+expanded cell energy -6519.42301438
+unrelaxed 100 surface formation energy 0.25206765222317457
+bulk cell energy -6526.8931109
+expanded cell energy -6519.37070215
+unrelaxed 100 surface formation energy 0.253832853167472
+bulk cell energy -6526.8931109
+expanded cell energy -6519.31637652
+unrelaxed 100 surface formation energy 0.2556659932344582
+bulk cell energy -6526.8931109
+expanded cell energy -6519.25673974
+unrelaxed 100 surface formation energy 0.25767835062836286
+bulk cell energy -6526.8931109
+expanded cell energy -6519.19012175
+unrelaxed 100 surface formation energy 0.25992627890704195
+bulk cell energy -6526.8931109
+expanded cell energy -6519.11724625
+unrelaxed 100 surface formation energy 0.2623853577740985
+bulk cell energy -6526.8931109
+expanded cell energy -6519.04057467
+unrelaxed 100 surface formation energy 0.2649725297185011
+bulk cell energy -6526.8931109
+expanded cell energy -6518.96393113
+unrelaxed 100 surface formation energy 0.2675587557130279
+bulk cell energy -6526.8931109
+expanded cell energy -6518.89326615
+unrelaxed 100 surface formation energy 0.26994324381944185
+bulk cell energy -6526.8931109
+expanded cell energy -6518.83221675
+unrelaxed 100 surface formation energy 0.2720032677653754
+bulk cell energy -6526.8931109
+expanded cell energy -6518.78325691
+unrelaxed 100 surface formation energy 0.2736553472476472
+bulk cell energy -6526.8931109
+expanded cell energy -6518.74671113
+unrelaxed 100 surface formation energy 0.2748885316863358
+bulk cell energy -6526.8931109
+expanded cell energy -6518.72122269
+unrelaxed 100 surface formation energy 0.27574860239912924
+bulk cell energy -6526.8931109
+expanded cell energy -6518.70504498
+unrelaxed 100 surface formation energy 0.2762944960370511
+bulk cell energy -6526.8931109
+expanded cell energy -6518.6949541
+unrelaxed 100 surface formation energy 0.2766349984017539
+bulk cell energy -6526.8931109
+expanded cell energy -6518.68792377
+unrelaxed 100 surface formation energy 0.2768722265290767
+openings  [0.0, 0.09999999999999999, 0.19999999999999998, 0.3, 0.39999999999999997, 0.5, 0.6, 0.7000000000000001, 0.7999999999999999, 0.8999999999999999, 1.0, 1.1, 1.2, 1.3, 1.4000000000000001, 1.5, 1.5999999999999999, 1.7, 1.7999999999999998, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8000000000000003, 2.9000000000000004, 3.0, 3.0999999999999996, 3.1999999999999997, 3.3, 3.4, 3.5]
+es  ['0.0', '0.0024357077524571297', '0.009283697552026019', '0.019933758300570727', '0.03394395477615399', '0.05086504464281064', '0.07049938868064178', '0.09325009262403244', '0.11748161904807873', '0.14126205936308567', '0.1634478125832009', '0.18312261606735117', '0.19970980737578456', '0.21317546770884221', '0.22393257710040163', '0.23262031121776014', '0.23963134053296062', '0.2447600386831952', '0.2479279389698543', '0.25020828183909677', '0.25206765222317457', '0.253832853167472', '0.2556659932344582', '0.25767835062836286', '0.25992627890704195', '0.2623853577740985', '0.2649725297185011', '0.2675587557130279', '0.26994324381944185', '0.2720032677653754', '0.2736553472476472', '0.2748885316863358', '0.27574860239912924', '0.2762944960370511', '0.2766349984017539', '0.2768722265290767']
+stresses  ['0.0001125462842638227', '0.04751004826250443', '0.08835818722649912', '0.123998719274907', '0.15545465239771167', '0.1821212614014433', '0.2127233191311492', '0.23853690151061285', '0.2425959858495101', '0.2314381572629459', '0.21063719115236879', '0.18182977925554356', '0.14990353560296987', '0.12014162757730593', '0.09621304582631635', '0.07835149438496855', '0.06134387961057924', '0.040464811135767914', '0.025694828953159304', '0.0202031677286403', '0.017683897731888262', '0.01779838119506494', '0.019072807826357466', '0.021275311326229295', '0.023634517046239586', '0.025396834860880714', '0.026165667854014227', '0.02514243189094626', '0.02238602761042235', '0.018648819237787627', '0.01438179828458622', '0.010381905252679645', '0.0068882352491611565', '0.0042440842721382524', '0.0027273077410219526', '0.0021785995245401906']
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'surface_decohesion_unrelaxed_energy': ['0.0', '0.0024357077524571297', '0.009283697552026019', '0.019933758300570727', '0.03394395477615399', '0.05086504464281064', '0.07049938868064178', '0.09325009262403244', '0.11748161904807873', '0.14126205936308567', '0.1634478125832009', '0.18312261606735117', '0.19970980737578456', '0.21317546770884221', '0.22393257710040163', '0.23262031121776014', '0.23963134053296062', '0.2447600386831952', '0.2479279389698543', '0.25020828183909677', '0.25206765222317457', '0.253832853167472', '0.2556659932344582', '0.25767835062836286', '0.25992627890704195', '0.2623853577740985', '0.2649725297185011', '0.2675587557130279', '0.26994324381944185', '0.2720032677653754', '0.2736553472476472', '0.2748885316863358', '0.27574860239912924', '0.2762944960370511', '0.2766349984017539', '0.2768722265290767'], 'surface_decohesion_unrelaxed_opening': [0.0, 0.09999999999999999, 0.19999999999999998, 0.3, 0.39999999999999997, 0.5, 0.6, 0.7000000000000001, 0.7999999999999999, 0.8999999999999999, 1.0, 1.1, 1.2, 1.3, 1.4000000000000001, 1.5, 1.5999999999999999, 1.7, 1.7999999999999998, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8000000000000003, 2.9000000000000004, 3.0, 3.0999999999999996, 3.1999999999999997, 3.3, 3.4, 3.5], 'surface_decohesion_unrelaxed_stress': ['0.0001125462842638227', '0.04751004826250443', '0.08835818722649912', '0.123998719274907', '0.15545465239771167', '0.1821212614014433', '0.2127233191311492', '0.23853690151061285', '0.2425959858495101', '0.2314381572629459', '0.21063719115236879', '0.18182977925554356', '0.14990353560296987', '0.12014162757730593', '0.09621304582631635', '0.07835149438496855', '0.06134387961057924', '0.040464811135767914', '0.025694828953159304', '0.0202031677286403', '0.017683897731888262', '0.01779838119506494', '0.019072807826357466', '0.021275311326229295', '0.023634517046239586', '0.025396834860880714', '0.026165667854014227', '0.02514243189094626', '0.02238602761042235', '0.018648819237787627', '0.01438179828458622', '0.010381905252679645', '0.0068882352491611565', '0.0042440842721382524', '0.0027273077410219526', '0.0021785995245401906']}
+============================================================

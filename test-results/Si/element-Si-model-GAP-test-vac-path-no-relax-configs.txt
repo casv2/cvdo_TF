@@ -1,0 +1,56 @@
+Model GAP, Test vac-path-no-relax-configs
+Test run at 2018-08-31 15:57
+
+model file: ../../../models/Si/GAP/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2017_6_17_60_4_3_56_165"',
+                                               param_filename='gp_iter6_sparse9k.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2017_6_17_60_4_3_56_165"',
+                                               param_filename='gp_iter6_sparse9k.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Si/vac-path-no-relax-configs/test.py
+============================================================
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+ats = ase.io.read(os.path.join(os.path.dirname(__file__),"model-GAP-vacancy-path.neb.xyz"),":")
+Es = []
+for at in ats:
+    at.set_calculator(model.calculator)
+    e = at.get_potential_energy()
+    Es.append(e)
+properties = {'vacancy-path' : Es}============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'vacancy-path': [-10276.564713128797, -10276.515851583279, -10276.411848299978, -10276.278970735424, -10276.110478571549, -10276.026512746967, -10276.110392026321, -10276.278992340975, -10276.411924528178, -10276.515883752872, -10276.564711155472]}
+============================================================

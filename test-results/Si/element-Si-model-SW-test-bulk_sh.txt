@@ -1,0 +1,106 @@
+Model SW, Test bulk_sh
+Test run at 2018-09-19 14:25
+
+model file: ../../../models/Si/SW/model.py
+============================================================
+# Model for Stillinger-Weber with original parameters for Si (Z=14)
+
+from quippy import Potential
+
+# A module defining a module needs to define only one variable,
+# named `calculator`, which should be an instance of the ase.calculator.Calculator,
+# a subclass of this, or a compatible class implementing the calculator interface.
+
+calculator = Potential('IP SW', param_str="""
+<SW_params n_types="1">
+<per_type_data type="1" atomic_num="14" />
+<per_pair_data atnum_i="14" atnum_j="14" AA="7.049556277" BB="0.6022245584"
+      p="4" q="0" a="1.80" sigma="2.0951" eps="2.1675" />
+<per_triplet_data atnum_c="14" atnum_j="14" atnum_k="14"
+      lambda="21.0" gamma="1.20" eps="2.1675" />
+</SW_params>
+""")
+
+no_checkpoint = True
+name = 'SW'
+
+============================================================
+test file: ../../../tests/Si/bulk_sh/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+import ase.io, os
+from math import sqrt
+
+import lattice_tetragonal
+
+# the current model
+import model 
+
+v0 = 18.0
+
+# set up the a
+bulk = ase.io.read(os.path.join(os.path.dirname(__file__),"sh.extxyz"))
+cell_factor = (len(bulk)*v0/bulk.get_volume())**(1.0/3.0)
+bulk.set_cell(bulk.get_cell()*cell_factor, scale_atoms=True)
+
+(E_vs_V) = lattice_tetragonal.do_lattice(bulk, use_precon=False, elastic=False)
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'sh_E_vs_V': E_vs_V }
+============================================================
+unrelaxed bulk
+1
+Lattice="2.7494592739972052 0.0 0.0 1.3747296369986026 2.381101577952299 0.0 0.0 0.0 2.7494592739972052" Properties=species:S:1:pos:R:3:Z:I:1 pbc="T T T"
+Si       0.00000000       0.00000000       0.00000000       14 
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[1.17961196e-16 0.00000000e+00 0.00000000e+00]]
+[[1.17961196e-16 0.00000000e+00 0.00000000e+00]]
+(1, 3)
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 99, in <module>
+    import test  # import and run the current test
+  File "../../../tests/Si/bulk_sh/test.py", line 28, in <module>
+    (E_vs_V) = lattice_tetragonal.do_lattice(bulk, use_precon=False, elastic=False)
+  File "../../../share/lattice_tetragonal.py", line 46, in do_lattice
+    bulk = relax_atoms_cell(bulk, tol=tol, traj_file=None, method='cg_n', symmetrize=True)
+  File "../../../share/utilities.py", line 178, in relax_atoms_cell
+    opt.run(tol, max_steps)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/quippy/potential.py", line 677, in run
+    use_precond=self.use_precond)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/quippy/oo_fortran.py", line 856, in <lambda>
+    wrapmethod = lambda name: lambda self, *args, **kwargs: self._runroutine(name, *args, **kwargs)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/quippy/oo_fortran.py", line 574, in _runroutine
+    res = fobj(*newargs, **newkwargs)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/quippy/potential.py", line 285, in callback
+    Potential.callback_map[at.params['label']](at)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/quippy/potential.py", line 55, in callback
+    at.force[:] = at.get_forces().T
+  File "/Users/Cas/.local/lib/python2.7/site-packages/ase/atoms.py", line 734, in get_forces
+    forces = self._calc.get_forces(self)
+  File "/Users/Cas/.local/lib/python2.7/site-packages/ase/calculators/calculator.py", line 453, in get_forces
+    return self.get_property('forces', atoms)
+  File "/Users/Cas/.local/lib/python2.7/site-packages/ase/calculators/calculator.py", line 486, in get_property
+    self.calculate(atoms, [name], system_changes)
+  File "../../../share/utilities.py", line 358, in calculate
+    self.rotations, self.translations, self.symm_map)
+  File "../../../share/symmetrize.py", line 80, in forces
+    forces = np.reshape(forces, (2,3))
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/numpy/core/fromnumeric.py", line 257, in reshape
+    return _wrapfunc(a, 'reshape', newshape, order=order)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/numpy/core/fromnumeric.py", line 52, in _wrapfunc
+    return getattr(obj, method)(*args, **kwds)
+ValueError: cannot reshape array of size 3 into shape (2,3)

@@ -1,0 +1,324 @@
+Model GAP_2b_3b, Test surface-decohesion-100-unrelaxed
+Test run at 2018-09-03 18:54
+
+model file: ../../../models/Ti/GAP_2b_3b/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_5_29_60_13_48_53_535"',
+                                               param_filename='gp_2b_3b.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_5_29_60_13_48_53_535"',
+                                               param_filename='gp_2b_3b.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Ti/surface-decohesion-100-unrelaxed/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import BodyCenteredCubic
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model 
+
+a0 = 3.16 # initial guess at lattice constant, cell will be relaxed below
+fmax = 0.01 # maximum force following relaxtion [eV/A]
+
+# set up the a
+bulk = BodyCenteredCubic(symbol='W', latticeconstant=a0)
+
+# specify that we will use model.calculator to compute forces, energies and stresses
+bulk.set_calculator(model.calculator)
+
+# use one of the routines from utilities module to relax the initial
+# unit cell and atomic positions
+bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+
+# set up supercell
+bulk *= (5, 1, 1)
+
+def surface_energy(bulk, opening):
+    Nat = bulk.get_number_of_atoms()
+
+    # relax atom positions, holding cell fixed
+    # vac = relax_atoms(vac, fmax=fmax)
+
+    # compute surface formation energy as difference of bulk and expanded cell
+    ebulk = bulk.get_potential_energy()
+    print 'bulk cell energy', ebulk
+
+    bulk.cell[0,:] += [opening,0.0,0.0]
+    eexp  = bulk.get_potential_energy()
+    
+    print 'expanded cell energy', eexp
+    e_form = (eexp - ebulk) / (bulk.cell[1,1]*bulk.cell[2,2])
+    print 'unrelaxed 100 surface formation energy', e_form
+    return e_form
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+n_steps = 35
+max_opening = 3.5
+
+openings = []
+es = []
+for i in range(n_steps + 1):
+    opening = float(i)/float(n_steps)*max_opening
+    openings.append(opening)
+    bulk_copy = bulk.copy()
+    bulk_copy.set_calculator(model.calculator)
+    es.append(surface_energy(bulk_copy, opening))
+
+print "openings ", openings
+print "es ", es
+from scipy import interpolate
+spline = interpolate.splrep(openings, es, s=0)
+stresses = [x for x in interpolate.splev(openings, spline, der=1)]
+
+print "stresses ", stresses
+properties = {'surface_decohesion_unrelaxed_opening': openings, 'surface_decohesion_unrelaxed_energy' : es, 'surface_decohesion_unrelaxed_stress' : stresses}
+
+============================================================
+relax_atoms_cell using method lbfgs_precon
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  18:54:24      -11.681690       0.0000       0.0483
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.00 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=2.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=4.24 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): got r_NN=2.737 in 0.00172400474548 s
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000175952911377 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.00040602684021 s ---
+INFO:ase.optimize.precon:--- remove zeros in 7.60555267334e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.00142288208008 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00172686576843 s ---
+INFO:ase.optimize.precon:mu (0.359) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:mu_c (-61.013) < 1.0, capping at mu_c=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000174045562744 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000159978866577 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 6.29425048828e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 5.69820404053e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000573873519897 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000938892364502 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00274920463562 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000304222106934 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.305, suff_dec = True
+PreconLBFGS:   1  18:54:25      -11.840016       0.0000       0.0739
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000155925750732 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000176191329956 s ---
+INFO:ase.optimize.precon:--- remove zeros in 6.41345977783e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000729084014893 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00109314918518 s ---
+INFO:ase.optimize.precon:estimate_mu(): mu=2.198583831727064, mu_c=79.79000230179334
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000173091888428 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.00016713142395 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 5.10215759277e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 5.60283660889e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000592947006226 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000992059707642 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00285983085632 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000189781188965 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 0.478, suff_dec = True
+PreconLBFGS:   2  18:54:25      -12.074559       0.0000       0.0280
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000163078308105 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000210046768188 s ---
+INFO:ase.optimize.precon:--- remove zeros in 5.91278076172e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000641107559204 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.000988960266113 s ---
+INFO:ase.optimize.precon:mu (-0.938) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=199.18632639853462
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00300097465515 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000229835510254 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 6.00814819336e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 8.48770141602e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000737905502319 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00110387802124 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00622391700745 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000213861465454 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   3  18:54:25      -12.089086       0.0000       0.0132
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.0001540184021 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000175952911377 s ---
+INFO:ase.optimize.precon:--- remove zeros in 6.07967376709e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000679969787598 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00107216835022 s ---
+INFO:ase.optimize.precon:mu (-0.788) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=207.81465883460413
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.000169992446899 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000169038772583 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 5.29289245605e-05 s ---
+INFO:ase.optimize.precon:--- remove zeros in 6.8187713623e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000659942626953 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00095796585083 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.00292611122131 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.000210046768188 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   4  18:54:25      -12.094029       0.0000       0.0015
+bulk cell energy -60.4701465829
+expanded cell energy -60.4701465829
+unrelaxed 100 surface formation energy 0.0
+bulk cell energy -60.4701465829
+expanded cell energy -60.4531265922
+unrelaxed 100 surface formation energy 0.0015002626479597091
+bulk cell energy -60.4701465829
+expanded cell energy -60.3972858378
+unrelaxed 100 surface formation energy 0.006422462650728983
+bulk cell energy -60.4701465829
+expanded cell energy -60.3215985614
+unrelaxed 100 surface formation energy 0.013094075800369299
+bulk cell energy -60.4701465829
+expanded cell energy -60.2287785506
+unrelaxed 100 surface formation energy 0.021275889636373183
+bulk cell energy -60.4701465829
+expanded cell energy -60.1191029702
+unrelaxed 100 surface formation energy 0.030943472881792434
+bulk cell energy -60.4701465829
+expanded cell energy -59.9977383836
+unrelaxed 100 surface formation energy 0.04164140800544563
+bulk cell energy -60.4701465829
+expanded cell energy -59.8766323268
+unrelaxed 100 surface formation energy 0.05231655447508486
+bulk cell energy -60.4701465829
+expanded cell energy -59.7838978699
+unrelaxed 100 surface formation energy 0.060490826985705036
+bulk cell energy -60.4701465829
+expanded cell energy -59.7129652194
+unrelaxed 100 surface formation energy 0.06674333370563727
+bulk cell energy -60.4701465829
+expanded cell energy -59.6530240613
+unrelaxed 100 surface formation energy 0.0720269723553513
+bulk cell energy -60.4701465829
+expanded cell energy -59.584462968
+unrelaxed 100 surface formation energy 0.07807043320408433
+bulk cell energy -60.4701465829
+expanded cell energy -59.5040555763
+unrelaxed 100 surface formation energy 0.08515811079124921
+bulk cell energy -60.4701465829
+expanded cell energy -59.4416916869
+unrelaxed 100 surface formation energy 0.0906553061516029
+bulk cell energy -60.4701465829
+expanded cell energy -59.3668644354
+unrelaxed 100 surface formation energy 0.09725111061836197
+bulk cell energy -60.4701465829
+expanded cell energy -59.2665156176
+unrelaxed 100 surface formation energy 0.10609656687483975
+bulk cell energy -60.4701465829
+expanded cell energy -59.1723998552
+unrelaxed 100 surface formation energy 0.11439259744811507
+bulk cell energy -60.4701465829
+expanded cell energy -59.0656616316
+unrelaxed 100 surface formation energy 0.12380126123231192
+bulk cell energy -60.4701465829
+expanded cell energy -58.9918284557
+unrelaxed 100 surface formation energy 0.13030944082668736
+bulk cell energy -60.4701465829
+expanded cell energy -58.9732070845
+unrelaxed 100 surface formation energy 0.1319508605060105
+bulk cell energy -60.4701465829
+expanded cell energy -59.0013903129
+unrelaxed 100 surface formation energy 0.12946659094329463
+bulk cell energy -60.4701465829
+expanded cell energy -59.0228291978
+unrelaxed 100 surface formation energy 0.1275768156237386
+bulk cell energy -60.4701465829
+expanded cell energy -58.9857627753
+unrelaxed 100 surface formation energy 0.13084411290140543
+bulk cell energy -60.4701465829
+expanded cell energy -58.9535561761
+unrelaxed 100 surface formation energy 0.13368303090034941
+bulk cell energy -60.4701465829
+expanded cell energy -58.9419735039
+unrelaxed 100 surface formation energy 0.1347040097454727
+bulk cell energy -60.4701465829
+expanded cell energy -58.9464278225
+unrelaxed 100 surface formation energy 0.13431137452601064
+bulk cell energy -60.4701465829
+expanded cell energy -58.944050649
+unrelaxed 100 surface formation energy 0.13452091545143255
+bulk cell energy -60.4701465829
+expanded cell energy -58.9226263137
+unrelaxed 100 surface formation energy 0.13640940825390308
+bulk cell energy -60.4701465829
+expanded cell energy -58.9111383428
+unrelaxed 100 surface formation energy 0.13742203945744183
+bulk cell energy -60.4701465829
+expanded cell energy -58.9203817686
+unrelaxed 100 surface formation energy 0.1366072583792783
+bulk cell energy -60.4701465829
+expanded cell energy -58.9336218564
+unrelaxed 100 surface formation energy 0.1354401831635617
+bulk cell energy -60.4701465829
+expanded cell energy -58.9492666842
+unrelaxed 100 surface formation energy 0.13406113712932624
+bulk cell energy -60.4701465829
+expanded cell energy -58.9692729377
+unrelaxed 100 surface formation energy 0.13229764410335632
+bulk cell energy -60.4701465829
+expanded cell energy -58.9944195156
+unrelaxed 100 surface formation energy 0.13008104643449142
+bulk cell energy -60.4701465829
+expanded cell energy -59.0248002667
+unrelaxed 100 surface formation energy 0.1274030716394373
+bulk cell energy -60.4701465829
+expanded cell energy -59.052959517
+unrelaxed 100 surface formation energy 0.1249209156709697
+openings  [0.0, 0.09999999999999999, 0.19999999999999998, 0.3, 0.39999999999999997, 0.5, 0.6, 0.7000000000000001, 0.7999999999999999, 0.8999999999999999, 1.0, 1.1, 1.2, 1.3, 1.4000000000000001, 1.5, 1.5999999999999999, 1.7, 1.7999999999999998, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8000000000000003, 2.9000000000000004, 3.0, 3.0999999999999996, 3.1999999999999997, 3.3, 3.4, 3.5]
+es  ['0.0', '0.0015002626479597091', '0.006422462650728983', '0.013094075800369299', '0.021275889636373183', '0.030943472881792434', '0.04164140800544563', '0.05231655447508486', '0.060490826985705036', '0.06674333370563727', '0.0720269723553513', '0.07807043320408433', '0.08515811079124921', '0.0906553061516029', '0.09725111061836197', '0.10609656687483975', '0.11439259744811507', '0.12380126123231192', '0.13030944082668736', '0.1319508605060105', '0.12946659094329463', '0.1275768156237386', '0.13084411290140543', '0.13368303090034941', '0.1347040097454727', '0.13431137452601064', '0.13452091545143255', '0.13640940825390308', '0.13742203945744183', '0.1366072583792783', '0.1354401831635617', '0.13406113712932624', '0.13229764410335632', '0.13008104643449142', '0.1274030716394373', '0.1249209156709697']
+stresses  ['-0.008883270469734994', '0.035500418341287046', '0.05955547662645635', '0.07409206972517536', '0.08967905404216803', '0.10267362654884615', '0.11059199083462073', '0.0961508579114434', '0.0702871469273888', '0.05550393129557493', '0.053781488979698144', '0.06918309773904362', '0.06342027314106582', '0.05468199812224939', '0.08064172918331874', '0.08598890684158253', '0.08964724834294444', '0.08656293051080519', '0.04160633097100298', '-0.00850027618386011', '-0.03289072273734342', '0.008841820665077854', '0.03884909882035367', '0.018948242351831294', '0.0011548370943420608', '-0.004717281959362991', '0.012221461921905334', '0.01877244610851465', '-0.0002775261756858636', '-0.011726837644515667', '-0.01227081206265512', '-0.015573551603425703', '-0.019711153329802597', '-0.024984555922406768', '-0.027187796898142325', '-0.021068179390676036']
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'surface_decohesion_unrelaxed_energy': ['0.0', '0.0015002626479597091', '0.006422462650728983', '0.013094075800369299', '0.021275889636373183', '0.030943472881792434', '0.04164140800544563', '0.05231655447508486', '0.060490826985705036', '0.06674333370563727', '0.0720269723553513', '0.07807043320408433', '0.08515811079124921', '0.0906553061516029', '0.09725111061836197', '0.10609656687483975', '0.11439259744811507', '0.12380126123231192', '0.13030944082668736', '0.1319508605060105', '0.12946659094329463', '0.1275768156237386', '0.13084411290140543', '0.13368303090034941', '0.1347040097454727', '0.13431137452601064', '0.13452091545143255', '0.13640940825390308', '0.13742203945744183', '0.1366072583792783', '0.1354401831635617', '0.13406113712932624', '0.13229764410335632', '0.13008104643449142', '0.1274030716394373', '0.1249209156709697'], 'surface_decohesion_unrelaxed_opening': [0.0, 0.09999999999999999, 0.19999999999999998, 0.3, 0.39999999999999997, 0.5, 0.6, 0.7000000000000001, 0.7999999999999999, 0.8999999999999999, 1.0, 1.1, 1.2, 1.3, 1.4000000000000001, 1.5, 1.5999999999999999, 1.7, 1.7999999999999998, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8000000000000003, 2.9000000000000004, 3.0, 3.0999999999999996, 3.1999999999999997, 3.3, 3.4, 3.5], 'surface_decohesion_unrelaxed_stress': ['-0.008883270469734994', '0.035500418341287046', '0.05955547662645635', '0.07409206972517536', '0.08967905404216803', '0.10267362654884615', '0.11059199083462073', '0.0961508579114434', '0.0702871469273888', '0.05550393129557493', '0.053781488979698144', '0.06918309773904362', '0.06342027314106582', '0.05468199812224939', '0.08064172918331874', '0.08598890684158253', '0.08964724834294444', '0.08656293051080519', '0.04160633097100298', '-0.00850027618386011', '-0.03289072273734342', '0.008841820665077854', '0.03884909882035367', '0.018948242351831294', '0.0011548370943420608', '-0.004717281959362991', '0.012221461921905334', '0.01877244610851465', '-0.0002775261756858636', '-0.011726837644515667', '-0.01227081206265512', '-0.015573551603425703', '-0.019711153329802597', '-0.024984555922406768', '-0.027187796898142325', '-0.021068179390676036']}
+============================================================

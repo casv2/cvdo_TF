@@ -1,0 +1,78 @@
+Model DFTB, Test bulk_hcp
+Test run at 2018-09-10 14:47
+
+model file: ../../../models/Ti/DFTB/model.py
+============================================================
+from quippy import Potential
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(model_dir, '4x4x4k_mesh_param_file_tightbind.parms.NRL_TB.Ti_spline_old.xml')
+
+calculator = Potential('TB NRL-TB', param_filename = filename, Fermi_T = 0.001)
+
+#no_checkpoint = True
+#name = 'DFTB'============================================================
+test file: ../../../tests/Ti/bulk_hcp/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.hexagonal import HexagonalClosedPacked
+from math import sqrt
+
+import lattice_tetragonal
+
+# the current model
+import model 
+
+#c_over_a = 1.8
+#a0 = (16.0*2*2/sqrt(3.0)/c_over_a)**(1.0/3.0)# initial guess at lattice constant, cell will be relaxed below
+
+c_over_a = 1.588
+a0 = 2.95
+#a0 = 2.95
+
+# set up the a
+bulk = HexagonalClosedPacked(symbol='Ti', latticeconstant=(a0,a0*c_over_a)) 
+
+(c11, c33, c12, c13, c44, c66, E_vs_V) = lattice_tetragonal.do_lattice(bulk, elastic=True)#, tol=1.0e-2)
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+#properties = {'hcp_E_vs_V': E_vs_V }
+
+properties = {'hcp_c11': c11, 'hcp_c33': c33, 'hcp_c12': c12, 'hcp_c13': c13, 'hcp_c44': c44, 'hcp_c66': c66, 'hcp_E_vs_V': E_vs_V }
+============================================================
+unrelaxed bulk
+2
+Lattice="2.95 0.0 0.0 -1.4749999999999994 2.5547749411640948 0.0 0.0 0.0 4.6846000000000005" Properties=species:S:1:pos:R:3:Z:I:1 pbc="T T T"
+Ti       0.00000000       0.00000000       0.00000000       22 
+Ti       0.00000000       1.70318329       2.34230000       22 
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 194 , international (Hermann-Mauguin) P6_3/mmc , Hall -P 6c 2c
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[ 2.89833553e-02 -1.67356248e-02  5.68966852e-06]
+ [-2.89833553e-02  1.67356248e-02 -5.68966852e-06]]
+[[ 2.89833553e-02 -1.67356248e-02  5.68966852e-06]
+ [-2.89833553e-02  1.67356248e-02 -5.68966852e-06]]
+(2, 3)
+[[ 2.89833553e-02 -1.67356248e-02  5.68966852e-06]
+ [-2.89833553e-02  1.67356248e-02 -5.68966852e-06]]
+(2, 3)
+stress [ 8.92596368e-04 -7.09421157e-03 -3.64310990e-02 -1.66792468e-06
+ -1.13503953e-06 -6.91578105e-03]
+flat [ 8.92596368e-04 -7.09421157e-03 -3.64310990e-02 -1.66792468e-06
+ -1.13503953e-06 -6.91578105e-03]
+new_stress [[ 8.92596368e-04 -6.91578105e-03 -1.13503953e-06]
+ [-6.91578105e-03 -7.09421157e-03 -1.66792468e-06]
+ [-1.13503953e-06 -1.66792468e-06 -3.64310990e-02]]

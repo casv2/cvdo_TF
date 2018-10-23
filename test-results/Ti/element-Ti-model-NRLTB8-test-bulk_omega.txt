@@ -1,0 +1,186 @@
+Model NRLTB8, Test bulk_omega
+Test run at 2018-10-11 20:19
+
+model file: ../../../models/Ti/NRLTB8/model.py
+============================================================
+from quippy import Potential
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+filename = os.path.join(model_dir, '8x8x8k_mesh_param_file_tightbind.parms.NRL_TB.Ti_spline.xml')
+
+calculator = Potential('TB NRL-TB', param_filename = filename)#, Fermi_T = 0.001)
+
+no_checkpoint = True
+name = 'DFTB'============================================================
+test file: ../../../tests/Ti/bulk_omega/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.hexagonal import HexagonalClosedPacked
+from math import sqrt
+
+import numpy as np
+import lattice_tetragonal
+
+# the current model
+import model 
+
+#c_over_a = 1.8
+#a0 = (16.0*2*2/sqrt(3.0)/c_over_a)**(1.0/3.0)# initial guess at lattice constant, cell will be relaxed below
+
+#c_over_a = 1.588
+#a0 = 2.95
+
+def create_omega_custom(c_vs_a, a, z):
+   import quippy
+
+   #a = (2 * V / (3.0**(0.5) * c_vs_a))**(1.0/3.0)
+   c = c_vs_a * a
+
+   lattice = []
+   lattice.append([3.0**(0.5) /2.0 * a,-a/2.0,0])
+   lattice.append([3.0**(0.5) /2.0 * a, a/2.0,0])
+   lattice.append([0,0,c])
+   lattice = np.transpose(lattice)
+   unitcell = quippy.Atoms(n=0, lattice=lattice)
+
+   pos = []
+   pos.append([3.0**(0.5) /6.0 * a,0,0.0])
+   pos.append([3.0**(0.5) /2.0 * a,0,c/2.0])
+   pos.append([3.0**(0.5) * 5.0/6.0 * a,0,c/2.0])
+
+   for i in range(0,len(pos)):
+      unitcell.add_atoms(pos[i],z)
+
+   return unitcell
+
+# set up the a
+#bulk = HexagonalClosedPacked(symbol='Ti', latticeconstant=(a0,a0*c_over_a))
+
+c_vs_a = 0.610
+a = 4.630
+
+bulk = create_omega_custom(c_vs_a, a, 22)
+
+(c11, c33, c12, c13, c44, c66, E_vs_V) = lattice_tetragonal.do_lattice(bulk, elastic=True)#, tol=1.0e-2)
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+#properties = {'hcp_E_vs_V': E_vs_V }
+
+properties = {'omega_c11': c11, 'omega_c33': c33, 'omega_c12': c12, 'omega_c13': c13, 'omega_c44': c44, 'omega_c66': c66, 'omega_E_vs_V': E_vs_V }
+============================================================
+unrelaxed bulk
+3
+Lattice="4.00969761952195 -2.315 0.0 4.00969761952195 2.315 0.0 0.0 0.0 2.8243" Properties=species:S:1:pos:R:3:Z:I:1 pbc="T T T"
+Ti       1.33656587       0.00000000       0.00000000       22 
+Ti       4.00969762       0.00000000       1.41215000       22 
+Ti       6.68282937       0.00000000       1.41215000       22 
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 191 , international (Hermann-Mauguin) P6/mmm , Hall -P 6 2
+[[ 7.10659478e-16 -1.92229863e-16 -5.32508358e-18]
+ [ 1.64993763e-02 -7.43393912e-06  8.48460497e-06]
+ [-1.64993763e-02  7.43393912e-06 -8.48460497e-06]]
+stress [-3.24778186e-03 -4.52607143e-03 -1.28443746e-02 -5.20111498e-05
+ -5.15588276e-05  7.50711684e-07]
+flat [-3.24778186e-03 -4.52607143e-03 -1.28443746e-02 -5.20111498e-05
+ -5.15588276e-05  7.50711684e-07]
+new_stress [[-3.24778186e-03  7.50711684e-07 -5.15588276e-05]
+ [ 7.50711684e-07 -4.52607143e-03 -5.20111498e-05]
+ [-5.15588276e-05 -5.20111498e-05 -1.28443746e-02]]
+[[-8.85198134e-17  1.89200114e-16  2.63802883e-15]
+ [ 8.06872251e-03 -4.30285027e-05  8.70524425e-06]
+ [-8.06872251e-03  4.30285027e-05 -8.70524426e-06]]
+stress [-3.29430077e-04 -1.24538485e-03 -5.34915983e-03 -5.13083816e-05
+ -5.05014023e-05  1.57865939e-06]
+flat [-3.29430077e-04 -1.24538485e-03 -5.34915983e-03 -5.13083816e-05
+ -5.05014023e-05  1.57865939e-06]
+new_stress [[-3.29430077e-04  1.57865939e-06 -5.05014023e-05]
+ [ 1.57865939e-06 -1.24538485e-03 -5.13083816e-05]
+ [-5.05014023e-05 -5.13083816e-05 -5.34915983e-03]]
+[[ 1.65958954e-16  2.48265740e-16  3.13742726e-15]
+ [-1.14913998e-02 -4.14177525e-05  8.31816199e-06]
+ [ 1.14913998e-02  4.14177525e-05 -8.31816200e-06]]
+stress [ 2.33231670e-03  2.25098939e-03  1.76941013e-03 -5.03774038e-05
+ -4.96134250e-05  1.51069159e-06]
+flat [ 2.33231670e-03  2.25098939e-03  1.76941013e-03 -5.03774038e-05
+ -4.96134250e-05  1.51069159e-06]
+new_stress [[ 2.33231670e-03  1.51069159e-06 -4.96134250e-05]
+ [ 1.51069159e-06  2.25098939e-03 -5.03774038e-05]
+ [-4.96134250e-05 -5.03774038e-05  1.76941013e-03]]
+[[ 2.22642504e-15  7.97575585e-17  4.74736125e-15]
+ [-4.96102941e-03 -5.21589530e-05  8.51295255e-06]
+ [ 4.96102941e-03  5.21589530e-05 -8.51295255e-06]]
+stress [ 1.39207936e-03  1.03822528e-03 -7.25577674e-04 -5.07577008e-05
+ -4.98841760e-05  1.77070441e-06]
+flat [ 1.39207936e-03  1.03822528e-03 -7.25577674e-04 -5.07577008e-05
+ -4.98841760e-05  1.77070441e-06]
+new_stress [[ 1.39207936e-03  1.77070441e-06 -4.98841760e-05]
+ [ 1.77070441e-06  1.03822528e-03 -5.07577008e-05]
+ [-4.98841760e-05 -5.07577008e-05 -7.25577674e-04]]
+[[-5.56373591e-17  1.94217785e-16  8.29448635e-15]
+ [-1.54567413e-02 -3.05569810e-05  8.19158672e-06]
+ [ 1.54567413e-02  3.05569810e-05 -8.19158673e-06]]
+stress [-1.55355585e-03 -1.46918125e-03  8.61681471e-04 -5.03252651e-05
+ -4.96708651e-05  1.26214208e-06]
+flat [-1.55355585e-03 -1.46918125e-03  8.61681471e-04 -5.03252651e-05
+ -4.96708651e-05  1.26214208e-06]
+new_stress [[-1.55355585e-03  1.26214208e-06 -4.96708651e-05]
+ [ 1.26214208e-06 -1.46918125e-03 -5.03252651e-05]
+ [-4.96708651e-05 -5.03252651e-05  8.61681471e-04]]
+[[ 6.90762971e-15  2.89108981e-16  7.13561359e-15]
+ [-1.03619832e-02 -4.49869210e-05  8.36218765e-06]
+ [ 1.03619832e-02  4.49869210e-05 -8.36218766e-06]]
+stress [ 5.88249877e-05 -6.53673384e-05 -2.25557430e-05 -5.05745975e-05
+ -4.97811673e-05  1.59935783e-06]
+flat [ 5.88249877e-05 -6.53673384e-05 -2.25557430e-05 -5.05745975e-05
+ -4.97811673e-05  1.59935783e-06]
+new_stress [[ 5.88249877e-05  1.59935783e-06 -4.97811673e-05]
+ [ 1.59935783e-06 -6.53673384e-05 -5.05745975e-05]
+ [-4.97811673e-05 -5.05745975e-05 -2.25557430e-05]]
+relaxed bulk
+3
+Lattice="4.015030015097155 -2.3180786600207703 -1.6687980161807455e-21 4.015030015097155 2.3180786600207703 -2.1013858888633645e-21 -1.3261121608862114e-21 -2.545595240197744e-22 2.845567015203458" Properties=species:S:1:pos:R:3:Z:I:1:forces:R:3 stress="-3.2711753504222153e-06 9.490927112956924e-23 2.965543604698343e-22 9.490927112956924e-23 -3.2711753504222174e-06 8.560636731732095e-22 2.965543604698343e-22 8.560636731732095e-22 -2.2555742976077468e-05" energy=-18.202443093 Minim_Constant_Volume=F Minim_Hydrostatic_Strain=F pbc="T T T"
+Ti       1.33834334       0.00000000      -0.00000000       22       0.00000000       0.00000000       0.00000000 
+Ti       4.01503002      -0.00000000       1.42278351       22       0.00000000       0.00000000      -0.00000000 
+Ti       6.69171669      -0.00000000       1.42278351       22      -0.00000000      -0.00000000       0.00000000 
+calculating elastic constants
+WARNING:ase.optimize.precon:use_pyamg=True but PyAMG cannot be imported! falling back on direct inversion of preconditioner, may be slow for large systems
+PreconLBFGS:   0  20:21:28      -18.187120       0.0561
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.00 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=1.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=2.62 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): calling neighbour_list with r_cut=4.24 A
+INFO:ase.optimize.precon:estimate_nearest_neighbour_distance(): got r_NN=2.846 in 0.0607810020447 s
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=True, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.00731515884399 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000345945358276 s ---
+INFO:ase.optimize.precon:--- remove zeros in 0.00867390632629 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.107536792755 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00815200805664 s ---
+INFO:ase.optimize.precon:mu (0.265) < 1.0, capping at mu=1.0
+INFO:ase.optimize.precon:estimate_mu(): mu=1.0, mu_c=1.0
+INFO:ase.optimize.precon:creating sparse precon: initial_assembly=False, force_stab=False, apply_positions=True, apply_cell=True
+INFO:ase.optimize.precon:--- neighbour list created in 0.0107691287994 s ---
+INFO:ase.optimize.precon:adding stabilisation to preconditioner
+INFO:ase.optimize.precon:--- computed triplet format in 0.000212907791138 s ---
+INFO:ase.optimize.precon:--- applied fixed_atoms in 0.000148057937622 s ---
+INFO:ase.optimize.precon:--- remove zeros in 7.48634338379e-05 s ---
+INFO:ase.optimize.precon:--- created CSC matrix in 0.000838994979858 s ---
+INFO:ase.optimize.precon:--- N-dim precon created in 0.00122594833374 s ---
+INFO:ase.optimize.precon:--- Precon created in 0.0144910812378 seconds ---
+INFO:ase.optimize.precon:--- Precon applied in 0.0277211666107 seconds ---
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   1  20:21:45      -18.187393       0.0309

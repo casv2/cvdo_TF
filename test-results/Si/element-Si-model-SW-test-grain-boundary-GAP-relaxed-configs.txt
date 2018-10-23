@@ -1,0 +1,69 @@
+Model SW, Test grain-boundary-GAP-relaxed-configs
+Test run at 2018-09-06 10:47
+
+model file: ../../../models/Si/SW/model.py
+============================================================
+# Model for Stillinger-Weber with original parameters for Si (Z=14)
+
+from quippy import Potential
+
+# A module defining a module needs to define only one variable,
+# named `calculator`, which should be an instance of the ase.calculator.Calculator,
+# a subclass of this, or a compatible class implementing the calculator interface.
+
+calculator = Potential('IP SW', param_str="""
+<SW_params n_types="1">
+<per_type_data type="1" atomic_num="14" />
+<per_pair_data atnum_i="14" atnum_j="14" AA="7.049556277" BB="0.6022245584"
+      p="4" q="0" a="1.80" sigma="2.0951" eps="2.1675" />
+<per_triplet_data atnum_c="14" atnum_j="14" atnum_k="14"
+      lambda="21.0" gamma="1.20" eps="2.1675" />
+</SW_params>
+""")
+
+no_checkpoint = True
+name = 'SW'
+
+============================================================
+test file: ../../../tests/Si/grain-boundary-GAP-relaxed-configs/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+#ats = ase.io.read(os.path.join(os.path.dirname(__file__),"gb.0.25_0.0-relaxed.opt.xyz"),":")
+#Es = []
+#for at in ats:
+    # e0 = at.get_potential_energy()
+#    at.set_calculator(model.calculator)
+#    e = at.get_potential_energy()
+#    Es.append(e)
+at = ase.io.read(os.path.join(os.path.dirname(__file__),"gb.0.25_0.0-relaxed.opt.xyz"))
+at.set_calculator(model.calculator)
+energy = at.get_potential_energy()
+
+properties = {'grain-boundary-GAP-relaxed':energy}
+============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'grain-boundary-GAP-relaxed': -201.20290419422557}
+============================================================

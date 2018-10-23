@@ -1,0 +1,76 @@
+Model Ti_Env4B_reg_tmp, Test phonon_bcc
+Test run at 2018-10-10 12:11
+
+model file: ../../../models/Ti/Ti_Env4B_reg_tmp/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/Ti-Env4B-reg-tmp.jld2")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Ti/phonon_bcc/test.py
+============================================================
+from ase.build import bulk
+from ase.calculators.emt import EMT
+from ase.dft.kpoints import ibz_points, bandpath
+from ase.phonons import Phonons
+
+import model
+# Setup crystal and EMT calculator
+atoms = bulk('Ti', 'bcc', a=3.32)
+
+# Phonon calculator
+N = 3
+ph = Phonons(atoms, model.calculator, supercell=(N, N, N), delta=0.05)
+ph.run()
+
+# Read forces and assemble the dynamical matrix
+ph.read(acoustic=True)
+
+# High-symmetry points in the Brillouin zone
+points = ibz_points['bcc']
+G = points['Gamma']
+H = points['H']
+P = points['P']
+N = points['N']
+
+point_names = ['$\Gamma$', 'H', 'P', '$\Gamma$', 'N']
+path = [G, H, P, G, N]
+
+path_kc, q, Q = bandpath(path, atoms.cell, 100)
+omega_kn = 1000 * ph.band_structure(path_kc)
+
+properties = {"omega_kn" : omega_kn.tolist(), "point_names" : point_names, "path" : path, "Q" : list(Q), "q" : list(q) }
+
+============================================================
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 91, in <module>
+    import model # import and run the current model
+  File "../../../models/Ti/Ti_Env4B_reg_tmp/model.py", line 6, in <module>
+    IP = juliaimport.import_IP(model_dir + "/Ti-Env4B-reg-tmp.jld2")
+  File "../../../models/Ti/Ti_Env4B_reg_tmp/juliaimport.py", line 25, in import_IP
+    julia.eval("IPf = fast(IP)")
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/julia-0.1.5-py2.7.egg/julia/core.py", line 458, in eval
+    ans = self._call(src)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/julia-0.1.5-py2.7.egg/julia/core.py", line 412, in _call
+    self.check_exception(src)
+  File "/Users/Cas/anaconda2/lib/python2.7/site-packages/julia-0.1.5-py2.7.egg/julia/core.py", line 441, in check_exception
+    .format(exception, src))
+julia.core.JuliaError: Exception 'MethodError: no method matching fast(::Void)
+Closest candidates are:
+  fast(!Matched::NBodyIPs.NBodyIP) at /Users/Cas/.julia/v0.6/NBodyIPs/src/common.jl:113
+  fast(!Matched::NBodyIPs.OneBody) at /Users/Cas/.julia/v0.6/NBodyIPs/src/onebody.jl:22
+  fast(!Matched::NBodyIPs.Polys.StNBPoly) at /Users/Cas/.julia/v0.6/NBodyIPs/src/polys.jl:243
+  ...' occurred while calling julia code:
+IPf = fast(IP)
