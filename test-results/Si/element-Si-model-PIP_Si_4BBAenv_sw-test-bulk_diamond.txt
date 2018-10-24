@@ -1,0 +1,103 @@
+Model PIP_Si_4BBAenv_sw, Test bulk_diamond
+Test run at 2018-10-23 22:06
+
+model file: ../../../models/Si/PIP_Si_4BBAenv_sw/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/SiPIP_4BBA_env_sw.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Si/bulk_diamond/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import Diamond
+
+import lattice_cubic
+
+# the current model
+import model
+
+a0 = (20.0*8)**(1.0/3.0) # initial guess at lattice constant, cell will be relaxed below
+
+# set up the a
+bulk = Diamond(symbol='Si', latticeconstant=a0)
+
+(c11, c12, c44, E_vs_V) = lattice_cubic.do_lattice(bulk, elastic=True)
+
+a0 = bulk.cell[0,0] # save lattice constant after relaxation
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'diamond_a0': a0, 'diamond_c11': c11, 'diamond_c12': c12, 'diamond_c44': c44, 'diamond_bulk_modulus': (c11+2.0*c12)/3.0, 'diamond_E_vs_V': E_vs_V }
+============================================================
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 227 , international (Hermann-Mauguin) Fd-3m , Hall F 4d 2 3 -1d
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-9.79407900e-03  6.25199408e-08  9.79378787e-03]
+ [ 9.78919177e-03  3.97604350e-06 -9.81167698e-03]
+ [ 9.81804423e-03  7.23915172e-06 -9.78978812e-03]
+ [-9.81690972e-03 -2.22744237e-05  9.80229511e-03]
+ [-9.78186171e-03  1.92192943e-05  9.79941743e-03]
+ [ 9.75226531e-03  7.87166675e-06 -9.83581387e-03]
+ [ 9.82785218e-03  1.90915072e-05 -9.75910518e-03]
+ [-9.79606533e-03 -2.59625093e-05  9.79440791e-03]]
+stress [[-6.70031440e-03 -1.90984547e-08  3.63286313e-07]
+ [-1.82217261e-08 -6.70069182e-03  3.42082899e-07]
+ [ 2.96597315e-07  2.59116891e-07 -6.70029237e-03]]
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 102, in <module>
+    import test  # import and run the current test
+  File "../../../tests/Si/bulk_diamond/test.py", line 25, in <module>
+    (c11, c12, c44, E_vs_V) = lattice_cubic.do_lattice(bulk, elastic=True)
+  File "../../../share/lattice_cubic.py", line 30, in do_lattice
+    bulk = relax_atoms_cell(bulk, tol=tol, traj_file=None, symmetrize=True)
+  File "../../../share/utilities.py", line 178, in relax_atoms_cell
+    opt.run(tol, max_steps)
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/quippy/potential.py", line 677, in run
+    use_precond=self.use_precond)
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/quippy/oo_fortran.py", line 856, in <lambda>
+    wrapmethod = lambda name: lambda self, *args, **kwargs: self._runroutine(name, *args, **kwargs)
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/quippy/oo_fortran.py", line 574, in _runroutine
+    res = fobj(*newargs, **newkwargs)
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/quippy/potential.py", line 285, in callback
+    Potential.callback_map[at.params['label']](at)
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/quippy/potential.py", line 57, in callback
+    stress = at.get_stress()
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/ase/atoms.py", line 758, in get_stress
+    stress = self._calc.get_stress(self)
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/ase/calculators/calculator.py", line 463, in get_stress
+    return self.get_property('stress', atoms)
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/ase/calculators/calculator.py", line 493, in get_property
+    self.calculate(atoms, [name], system_changes)
+  File "../../../share/utilities.py", line 362, in calculate
+    symmetrized_stress = symmetrize.stress(atoms.get_cell(), atoms.get_reciprocal_cell().T, raw_stress, self.rotations)
+  File "../../../share/symmetrize.py", line 104, in stress
+    stress_3_3 = np.reshape(stress_3_3, (1,6))[0]
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/numpy/core/fromnumeric.py", line 279, in reshape
+    return _wrapfunc(a, 'reshape', newshape, order=order)
+  File "/home/casv2/miniconda2/lib/python2.7/site-packages/numpy/core/fromnumeric.py", line 51, in _wrapfunc
+    return getattr(obj, method)(*args, **kwds)
+ValueError: cannot reshape array of size 9 into shape (1,6)

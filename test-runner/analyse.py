@@ -51,7 +51,7 @@ def run_tests(potential, element):
 	if element == "Si":
 		tests = ["111_layer_test", "bulk_diamond", "surface-energy-100-unrelaxed", 
 	"surface-energy-111-unrelaxed", "fourfold-defect-small-GAP_traj_eval", "vac-path-no-relax-configs", 
-	"dimer", "surface-decohesion-100-unrelaxed", "surface-decohesion-111-unrelaxed"]#, "surface-energy-110-unrelaxed","surface-decohesion-110-unrelaxed",
+	"dimer", "surface-decohesion-100-unrelaxed", "surface-decohesion-111-unrelaxed", "surface-energy-110-unrelaxed","surface-decohesion-110-unrelaxed"]
 	#"grain-boundary-GAP-relaxed-configs", "bulk_fcc", "bulk_hcp", "bulk_sh", "bulk_bcc", "bulk_hex_diamond", "bulk_hcp_short_and_fat", "bulk_st12"] # ,"111_layer_test"] #"diinterstitial_GAP_relaxed-64-energy" ] 
 	elif element == "W":
 		tests = ["vacancy-energy", "bulk_bcc", "surface-decohesion-110-unrelaxed", "surface-energy-100-unrelaxed", "surface-energy-111-unrelaxed"
