@@ -131,3 +131,72 @@ bulk cell energy -6523.80990493
 expanded cell energy -6520.90116661
 unrelaxed 100 surface formation energy 0.09763654511069071
 bulk cell energy -6523.80990493
+expanded cell energy -6520.41575468
+unrelaxed 100 surface formation energy 0.113930188203058
+bulk cell energy -6523.80990493
+expanded cell energy -6519.96200705
+unrelaxed 100 surface formation energy 0.12916096720277118
+bulk cell energy -6523.80990493
+expanded cell energy -6519.55026825
+unrelaxed 100 surface formation energy 0.14298165156536066
+bulk cell energy -6523.80990493
+expanded cell energy -6519.19252068
+unrelaxed 100 surface formation energy 0.15499003210564113
+bulk cell energy -6523.80990493
+expanded cell energy -6518.90929534
+unrelaxed 100 surface formation energy 0.16449695248832757
+bulk cell energy -6523.80990493
+expanded cell energy -6518.71969929
+unrelaxed 100 surface formation energy 0.17086105303951987
+bulk cell energy -6523.80990493
+expanded cell energy -6518.58897621
+unrelaxed 100 surface formation energy 0.17524898640062397
+bulk cell energy -6523.80990493
+expanded cell energy -6518.47105993
+unrelaxed 100 surface formation energy 0.17920703869400398
+bulk cell energy -6523.80990493
+expanded cell energy -6518.34451979
+unrelaxed 100 surface formation energy 0.18345456469713256
+bulk cell energy -6523.80990493
+expanded cell energy -6518.2078873
+unrelaxed 100 surface formation energy 0.1880408571684191
+bulk cell energy -6523.80990493
+expanded cell energy -6518.07459864
+unrelaxed 100 surface formation energy 0.19251490848026528
+bulk cell energy -6523.80990493
+expanded cell energy -6517.95335277
+unrelaxed 100 surface formation energy 0.1965847236613722
+bulk cell energy -6523.80990493
+expanded cell energy -6517.85479368
+unrelaxed 100 surface formation energy 0.19989302032841907
+bulk cell energy -6523.80990493
+expanded cell energy -6517.78458727
+unrelaxed 100 surface formation energy 0.20224961301898992
+bulk cell energy -6523.80990493
+expanded cell energy -6517.74008185
+unrelaxed 100 surface formation energy 0.20374350983902254
+bulk cell energy -6523.80990493
+expanded cell energy -6517.7104642
+unrelaxed 100 surface formation energy 0.20473767457406136
+bulk cell energy -6523.80990493
+expanded cell energy -6517.68524381
+unrelaxed 100 surface formation energy 0.20558423837758408
+bulk cell energy -6523.80990493
+expanded cell energy -6517.65440916
+unrelaxed 100 surface formation energy 0.2066192534769167
+bulk cell energy -6523.80990493
+expanded cell energy -6517.61034952
+unrelaxed 100 surface formation energy 0.2080981871065386
+bulk cell energy -6523.80990493
+expanded cell energy -6517.54968522
+unrelaxed 100 surface formation energy 0.21013448352638878
+bulk cell energy -6523.80990493
+expanded cell energy -6517.47641643
+unrelaxed 100 surface formation energy 0.21259386972452907
+bulk cell energy -6523.80990493
+expanded cell energy -6517.4013343
+unrelaxed 100 surface formation energy 0.21511412382337475
+bulk cell energy -6523.80990493
+expanded cell energy -6517.3397971
+unrelaxed 100 surface formation energy 0.21717972055109108
+bulk cell energy -6523.80990493
