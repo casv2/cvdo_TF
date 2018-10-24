@@ -1,0 +1,140 @@
+Model PIP_Si_4BBAenv_sw2, Test bulk_diamond
+Test run at 2018-10-24 09:47
+
+model file: ../../../models/Si/PIP_Si_4BBAenv_sw2/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/SiPIP_4BBA_env_sw2.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Si/bulk_diamond/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import Diamond
+
+import lattice_cubic
+
+# the current model
+import model
+
+a0 = (20.0*8)**(1.0/3.0) # initial guess at lattice constant, cell will be relaxed below
+
+# set up the a
+bulk = Diamond(symbol='Si', latticeconstant=a0)
+
+(c11, c12, c44, E_vs_V) = lattice_cubic.do_lattice(bulk, elastic=True)
+
+a0 = bulk.cell[0,0] # save lattice constant after relaxation
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'diamond_a0': a0, 'diamond_c11': c11, 'diamond_c12': c12, 'diamond_c44': c44, 'diamond_bulk_modulus': (c11+2.0*c12)/3.0, 'diamond_E_vs_V': E_vs_V }
+============================================================
+relax_atoms_cell using method cg_n
+symmetry.prep: symmetry group number 227 , international (Hermann-Mauguin) Fd-3m , Hall F 4d 2 3 -1d
+WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
+[[-1.25669565e-02  4.91245521e-06  1.25773925e-02]
+ [ 1.25823215e-02  6.21852137e-06 -1.25552586e-02]
+ [ 1.25618769e-02 -2.98204671e-06 -1.25867143e-02]
+ [-1.25771444e-02 -5.45391270e-06  1.25814952e-02]
+ [-1.25646384e-02  2.55159817e-06  1.25640886e-02]
+ [ 1.25775504e-02 -3.66996399e-06 -1.25731228e-02]
+ [ 1.25651831e-02  7.56176877e-06 -1.25723471e-02]
+ [-1.25734776e-02 -9.45525444e-06  1.25624441e-02]]
+[[-1.25271778e-02  1.87213296e-05  1.25583143e-02]
+ [ 1.25477007e-02 -3.34018383e-05 -1.25431383e-02]
+ [ 1.25394946e-02  1.72053026e-05 -1.25440921e-02]
+ [-1.25510304e-02 -1.04497213e-06  1.25473290e-02]
+ [-1.25489392e-02  2.67215117e-06  1.25363581e-02]
+ [ 1.25398790e-02 -1.51255607e-05 -1.25567535e-02]
+ [ 1.25330491e-02  1.34716450e-05 -1.25428015e-02]
+ [-1.25375834e-02 -2.64296076e-06  1.25383255e-02]]
+[[-1.25167153e-02 -2.55303132e-06  1.25137311e-02]
+ [ 1.25255060e-02 -5.87624398e-06 -1.25204377e-02]
+ [ 1.25047903e-02  7.91972395e-06 -1.25218442e-02]
+ [-1.25239296e-02 -3.66310993e-06  1.25119262e-02]
+ [-1.25070819e-02  8.34355603e-08  1.25321131e-02]
+ [ 1.25315319e-02  8.51386963e-06 -1.25063970e-02]
+ [ 1.25085875e-02  2.86742109e-06 -1.25184730e-02]
+ [-1.25214767e-02  8.90545801e-08  1.25209920e-02]]
+[[-1.24589222e-02  4.35718029e-06  1.24632499e-02]
+ [ 1.24663033e-02  6.79789485e-06 -1.24543413e-02]
+ [ 1.24501946e-02 -6.40506459e-06 -1.24785913e-02]
+ [-1.24596004e-02 -1.07816162e-06  1.24604661e-02]
+ [-1.24589013e-02 -1.41323891e-05  1.24650879e-02]
+ [ 1.24709019e-02  4.77202983e-06 -1.24479522e-02]
+ [ 1.24457041e-02 -2.03947746e-06 -1.24715032e-02]
+ [-1.24608666e-02 -1.31110954e-06  1.24606865e-02]]
+[[-1.23578419e-02 -8.36495183e-06  1.23362988e-02]
+ [ 1.23533186e-02 -4.90520835e-07 -1.23456480e-02]
+ [ 1.23455202e-02  9.92018774e-06 -1.23426163e-02]
+ [-1.23527788e-02 -5.08521752e-06  1.23588516e-02]
+ [-1.23532007e-02  3.68191453e-06  1.23360737e-02]
+ [ 1.23544974e-02  6.43421925e-06 -1.23519895e-02]
+ [ 1.23487796e-02 -7.11232786e-07 -1.23585489e-02]
+ [-1.23380513e-02 -3.70301587e-06  1.23467323e-02]]
+[[-1.21173301e-02  1.90782268e-06  1.21187180e-02]
+ [ 1.21118449e-02 -8.63577866e-07 -1.21210300e-02]
+ [ 1.21217081e-02 -1.52865343e-07 -1.21164250e-02]
+ [-1.21236249e-02 -4.35215852e-06  1.21338801e-02]
+ [-1.21217358e-02  7.52275992e-06  1.21016143e-02]
+ [ 1.21109205e-02  1.88069744e-06 -1.21183411e-02]
+ [ 1.21280931e-02 -2.35724503e-06 -1.21155443e-02]
+ [-1.21167285e-02 -5.11208216e-06  1.21091191e-02]]
+[[-1.16291516e-02 -1.11389186e-06  1.16295468e-02]
+ [ 1.16222523e-02  2.88224737e-06 -1.16320391e-02]
+ [ 1.16470113e-02  9.72067665e-06 -1.16187748e-02]
+ [-1.16302824e-02 -4.13136115e-06  1.16228549e-02]
+ [-1.16180589e-02  2.88575767e-06  1.16428247e-02]
+ [ 1.16160805e-02 -1.35370425e-05 -1.16362497e-02]
+ [ 1.16375275e-02  1.18144088e-05 -1.16127297e-02]
+ [-1.16403404e-02 -3.48611758e-06  1.16248995e-02]]
+[[-1.19430447e-02  5.70498566e-06  1.19550186e-02]
+ [ 1.19325856e-02 -5.31717168e-06 -1.19536797e-02]
+ [ 1.19639506e-02 -3.59515547e-06 -1.19406856e-02]
+ [-1.19391580e-02  8.80207771e-06  1.19669189e-02]
+ [-1.19549067e-02 -6.07326279e-06  1.19418150e-02]
+ [ 1.19350480e-02  5.38565083e-06 -1.19434738e-02]
+ [ 1.19574912e-02 -5.25469998e-06 -1.19523530e-02]
+ [-1.19539482e-02  9.39757789e-06  1.19369030e-02]]
+relaxed bulk
+8
+Lattice="5.458039489809288 2.0834758021195366e-25 3.255430940811776e-27 2.0834758021195366e-25 5.458039489809288 0.0 3.255430940811776e-27 0.0 5.458039489809288" Properties=species:S:1:pos:R:3:forces:R:3 stress="7.191268910182348e-05 3.702249954143159e-26 3.7022499541431587e-26 3.702249954143159e-26 7.191268910182348e-05 7.404499908286317e-26 3.7022499541431587e-26 7.404499908286317e-26 7.191268910182348e-05" energy=-1304.76182513 Minim_Constant_Volume=F Minim_Hydrostatic_Strain=F pbc="T T T"
+Si      -0.00000000       0.00000000       0.00000000       0.00000000       0.00000000      -0.00000000 
+Si       1.36450987       1.36450987       1.36450987       0.00000000      -0.00000000       0.00000000 
+Si       2.72901974       2.72901974      -0.00000000       0.00000000       0.00000000      -0.00000000 
+Si       4.09352962       4.09352962       1.36450987       0.00000000      -0.00000000       0.00000000 
+Si       2.72901974       0.00000000       2.72901974       0.00000000      -0.00000000       0.00000000 
+Si       4.09352962       1.36450987       4.09352962       0.00000000      -0.00000000       0.00000000 
+Si      -0.00000000       2.72901974       2.72901974       0.00000000       0.00000000      -0.00000000 
+Si       1.36450987       4.09352962       4.09352962       0.00000000      -0.00000000       0.00000000 
+estimate_mu(): mu=2.253518567112762, mu_c=1.0
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+/home/casv2/miniconda2/lib/python2.7/site-packages/ase/atoms.py:764: UserWarning: Converting 3x3 stress tensor from JulipCalculator calculator to the required Voigt form.
+  'calculator to the required Voigt form.')
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True

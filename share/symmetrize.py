@@ -100,11 +100,11 @@ def forces(lattice, inv_lattice, forces, rot, trans, symm_map):
 # lattice vectors expected as row vectors (same as ASE get_cell() convention), inv_lattice is its matrix inverse (get_reciprocal_cell().T)
 def stress(lattice, lattice_inv, stress_3_3, rot):
     ######################## FIX
-    print "stress", stress_3_3
-    stress_3_3 = np.reshape(stress_3_3, (1,6))[0]
-    print "flat", stress_3_3
-    stress_3_3 = voigt_6_to_full_3x3_stress(stress_3_3)
-    print "new_stress", stress_3_3
+    #print "stress", stress_3_3
+    #stress_3_3 = np.reshape(stress_3_3, (1,6))[0]
+    #print "flat", stress_3_3
+    #stress_3_3 = voigt_6_to_full_3x3_stress(stress_3_3)
+    #print "new_stress", stress_3_3
     ######################## FIX
 
     scaled_stress = np.dot(np.dot(lattice, stress_3_3), lattice.T)

@@ -1,0 +1,69 @@
+WARNING: Method definition (::Type{ASE.ASECalculator})(Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+WARNING: Method definition (::Type{ASE.ASECalculator})(Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+WARNING: Method definition (::WARNING: Method definition (::Type{ASE.ASECalculator})Type{(Any) in module ASEASE.ASECalculator} at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+WARNING: Method definition (::)(AnyWARNING: Method definition (::Type{ASE.ASECalculator}WARNING: Method definition (::WARNING: Method definition (::Type{ASE.ASECalculator}) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379Type{ASE.ASECalculator})(WARNING: Method definition (::WARNING: Method definition (::)(Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+Type{ASE.ASECalculator}))(Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+ overwritten in module Main at none:1.
+Any)Type{ASE.ASECalculator})(Any)WARNING: Method definition (::Type{ASE.ASECalculator})((Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+ in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+Type{ASE.Any) in module ASE overwritten in module MainASECalculator})(Any at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+ at none:1.
+) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw2-test-dimer'
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw2-test-111_layer_test'
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw2-test-vac-path-no-relax-configs'
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw2-test-surface-energy-111-unrelaxed'
+both_func got max force component .20141906508959822E-004 on atom 5 max virial component .75782770286201651
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -978.56774992115413 .47851494262605813E-001 .47851494262605813E-001 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -978.56774992115413 .47851494262605813E-001 .47851494262605813E-001 1 n_minim pre linmin
+both_func got max force component -.32561285648662488E-004 on atom 2 max virial component .58324064840420409
+both_func got max force component .43700146433425002E-004 on atom 3 max virial component .41179940609198257
+both_func got max force component .73163545283369812E-004 on atom 3 max virial component .77138102112456794E-001
+both_func got max force component -.76859653172158820E-004 on atom 5 max virial component .56093879344425224
+both_func got max force component .53555183676677232E-004 on atom 3 max virial component .24246072727189282E-002
+cg_n .00000000000000000E+000 -978.57137740776807 -.13817078851067821E-003 .41853183655870777E-006 6 n_minim post linmin
+cg_n .00000000000000000E+000 -978.57137740776807 .13900785218379561E-003 .41853183655870777E-006 6 n_minim with new dir
+cg_n .00000000000000000E+000 -978.57137740776807 .13900785218379561E-003 .41853183655870777E-006 6 FINAL_VAL
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw2-test-surface-energy-100-unrelaxed'
+both_func got max force component .12356270021061877E-001 on atom 6 max virial component 1.0099534247754463
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1304.7569188583373 .50240355645146548E-001 .50240355645146548E-001 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1304.7569188583373 .50240355645146548E-001 .50240355645146548E-001 1 n_minim pre linmin
+both_func got max force component -.11530383301004345E-001 on atom 2 max virial component .88507426807414813
+both_func got max force component -.10637068069099776E-001 on atom 4 max virial component .76118993142572777
+both_func got max force component -.88969484464494070E-002 on atom 6 max virial component .51662696650052087
+both_func got max force component -.53476373925216225E-002 on atom 6 max virial component .39740326606356326E-001
+both_func got max force component .39873169746230137E-002 on atom 5 max virial component .87180418265542359
+both_func got max force component -.49063359795975129E-002 on atom 8 max virial component .22038165882758382E-001
+cg_n .00000000000000000E+000 -1304.7621706461553 -.88659386286301089E-004 .33147335722688277E-003 7 n_minim post linmin
+cg_n .00000000000000000E+000 -1304.7621706461553 .75160610074006705E-003 .33147335722688277E-003 7 n_minim with new dir
+cg_n .00000000000000000E+000 -1304.7621706461553 .75160610074006705E-003 .33147335722688277E-003 7 FINAL_VAL
