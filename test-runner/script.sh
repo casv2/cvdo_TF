@@ -10,4 +10,4 @@
 #source ~/venv/bin/activate
 export OMP_NUM_THREADS=1
 
-python analyse.py Si PIP_Si_4BBAenv_sw2
+python analyse.py Si PIP_Si_4BBAenv_sw3
