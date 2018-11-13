@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export PATH=/usr/local/make_interface:${PATH}
+
+make_supercell.py -l dia_prim.xyz -v1c 0.5 -0.5 0 -v2c 1 1 -1 -c fcc -t 7.5 -n 0.1 -m 3 > l1.supercell.xyz
+make_supercell.py -l dia_prim.xyz -v1c 0.5 -0.5 0 -v2c 1 1 1  -c fcc -t 7.5 -n 0.1 -m 3 > l2.supercell.xyz
+
+for s in 0.25; do
+    combine_supercells.py -l1 l1.supercell.xyz -l2 l2.supercell.xyz -P ${s} 0.0 --spacing 1.5 > gb.${s}_0.0.orig.xyz
+done
+for f in gb.*xyz; do 
+    convert.py --extra-args="post_config_command='bond_b'" $f -e 'at=supercell(at,1,1,1)' -o ${f/xyz/dan}
+done
