@@ -1,9 +1,0 @@
-Model GAP, Test bulk_bcc
-Test run at 2018-09-13 16:45
-
-model file: ../../../models/Ti/GAP/model.py
-============================================================
-Traceback (most recent call last):
-  File "run-model-test-cas.py", line 79, in <module>
-    sys.stdout.write(open(model_file).read())
-IOError: [Errno 2] No such file or directory: '../../../models/Ti/GAP/model.py'

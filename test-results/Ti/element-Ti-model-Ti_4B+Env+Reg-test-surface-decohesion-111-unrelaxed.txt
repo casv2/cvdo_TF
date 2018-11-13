@@ -1,9 +1,0 @@
-Model Ti_4B+Env+Reg, Test surface-decohesion-111-unrelaxed
-Test run at 2018-09-06 19:10
-
-model file: ../../../models/Ti/Ti_4B+Env+Reg/model.py
-============================================================
-Traceback (most recent call last):
-  File "run-model-test-cas.py", line 79, in <module>
-    sys.stdout.write(open(model_file).read())
-IOError: [Errno 2] No such file or directory: '../../../models/Ti/Ti_4B+Env+Reg/model.py'
