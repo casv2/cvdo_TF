@@ -61,12 +61,10 @@ for pot in args.potentials:
 			for line in xml_file:
 				if "configtype" in line:
 					gap_configs.append(line.split("configtype")[1].split(" ")[0][1:])
-				#if "config_type" in line:
-				#	print line 
-					#gap_configs.append(line.split("configt_ype")[1].split(" ")[0][1:])
+				if "config_type" in line:
+					gap_configs.append(line.split("config_type")[1].split(" ")[0][1:])
 				if line.startswith("    <![CDATA[config_type"):
 					gap_configs.append(line.split("=")[1].split(" ")[0])
-
 		configs = [config for config in set(gap_configs)]
 		num_configs = [gap_configs.count(config) for config in set(gap_configs)]
 		config_dict = dict(zip(configs, num_configs))

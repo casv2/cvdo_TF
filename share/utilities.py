@@ -40,7 +40,7 @@ def read_bulk_reference(model_name, test_name):
     bulk = read(fh, format='extxyz')
     return bulk
 
-def relax_atoms(atoms, tol=1e-3, method='cg_n', max_steps=1000, traj_file=None, **kwargs):
+def relax_atoms(atoms, tol=1e-3, method='lbfgs', max_steps=1000, traj_file=None, **kwargs):
     import model
     atoms.set_calculator(model.calculator)
     if hasattr(model, 'Optimizer'):
@@ -106,7 +106,7 @@ class SymmetrizedCalculator(Calculator):
             self.results['stress'] = full_3x3_to_voigt_6_stress(symmetrized_stress)
 
 
-def relax_atoms_cell(atoms, tol=1e-3, stol=None, method='cg_n', max_steps=100, mask=None, traj_file=None,
+def relax_atoms_cell(atoms, tol=1e-3, stol=None, method='lbfgs', max_steps=100, mask=None, traj_file=None,
                      hydrostatic_strain=False, constant_volume=False, precon_apply_positions=True,
                      precon_apply_cell=True, symmetrize = False, **kwargs):
     import model

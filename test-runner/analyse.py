@@ -15,6 +15,8 @@ import itertools
 import time
 start_time = time.time()
 
+plt.rcParams.update({'font.size': 12})
+
 parser = argparse.ArgumentParser(description='run fast test')
 parser.add_argument('element', action='store', type=str, help='element')
 parser.add_argument('potentials', nargs='+')
@@ -49,15 +51,14 @@ def pct_change(df):
 
 def run_tests(potential, element):
 	if element == "Si":
-		tests = ["111_layer_test", "bulk_diamond", "surface-energy-100-unrelaxed", 
-	"surface-energy-111-unrelaxed", "fourfold-defect-small-GAP_traj_eval", "vac-path-no-relax-configs", 
-	"dimer", "surface-decohesion-100-unrelaxed", "surface-decohesion-111-unrelaxed", "surface-energy-110-unrelaxed","surface-decohesion-110-unrelaxed"]
+		tests = ['bulk_diamond', 'dimer', '111_layer_test']   # "111_layer_test", "bulk_diamond", "surface-energy-100-unrelaxed", 
+	#"surface-energy-111-unrelaxed", "fourfold-defect-small-GAP_traj_eval", "vac-path-no-relax-configs", 
+	#"dimer", "surface-decohesion-100-unrelaxed", "surface-decohesion-111-unrelaxed", "surface-energy-110-unrelaxed","surface-decohesion-110-unrelaxed"]
 	#"grain-boundary-GAP-relaxed-configs", "bulk_fcc", "bulk_hcp", "bulk_sh", "bulk_bcc", "bulk_hex_diamond", "bulk_hcp_short_and_fat", "bulk_st12"] # ,"111_layer_test"] #"diinterstitial_GAP_relaxed-64-energy" ] 
 	elif element == "W":
-		tests = ["vacancy-energy", "bulk_bcc", "surface-decohesion-110-unrelaxed", "surface-energy-100-unrelaxed", "surface-energy-111-unrelaxed"
-	"surface-energy-111-unrelaxed", "surface-decohesion-100-unrelaxed", "surface-decohesion-111-unrelaxed"] #"surface-decohesion-110-unrelaxed", "surface-energy-100-unrelaxed", "surface-energy-110-unrelaxed", 
+		tests = ["dimer", "bulk_bcc", "surface-decohesion-100-unrelaxed", "surface-decohesion-111-unrelaxed", "layer_test"]#, "surface-decohesion-110-unrelaxed"]# "surface-energy-100-relaxed"]#, "surface-energy-111-relaxed", "surface-energy-110-relaxed"] #, 
 	elif element == "Ti":
-		tests = ['burgers_path', "bulk_bcc", "bulk_hcp","surface-decohesion-100-unrelaxed", "surface-decohesion-111-unrelaxed", "surface-decohesion-110-unrelaxed" ]#, 'phonon_hcp']#, 'phonon_bcc']# ['burgers_path']"bulk_bcc", "bulk_hcp", "bulk_omega", "dimer", "force-constant-bcc", "force-constant-hcp", 
+		tests = ['burgers_path', "bulk_bcc", "bulk_hcp", "dimer"]#,"surface-decohesion-100-unrelaxed", "surface-decohesion-111-unrelaxed", "surface-decohesion-110-unrelaxed" #, 'phonon_hcp']#, 'phonon_bcc']# ['burgers_path']"bulk_bcc", "bulk_hcp", "bulk_omega", "dimer", "force-constant-bcc", "force-constant-hcp", 
 		#"surface-decohesion-100-unrelaxed", "surface-decohesion-111-unrelaxed", "surface-decohesion-110-unrelaxed", 
 		#"force-constant-omega", "surface-energy-100-unrelaxed", "surface-energy-111-unrelaxed", "hcp_to_bcc"] #"surface-decohesion-110-unrelaxed", "surface-energy-110-unrelaxed", "surface-energy-100-unrelaxed", "surface-energy-110-unrelaxed", "surface-energy-111-unrelaxed", "surface-decohesion-100-unrelaxed", "surface-decohesion-110-unrelaxed", "surface-decohesion-111-unrelaxed", 
 	ps = []
@@ -73,10 +74,11 @@ def table_plot(potentials, element):
 	data_dict = { '-' : []}
 	if element == "Si":
 		#potentials.append("CASTEP_ASE")
-		tests = ["bulk_diamond", "surface-energy-100-unrelaxed", "surface-energy-111-unrelaxed"]  # "bulk_fcc", "bulk_hcp", "bulk_bcc", "bulk_st12" , "bulk_sh", "bulk_hex_diamond", "bulk_hcp_short_and_fat"] #"surface-energy-110-unrelaxed",
+		tests = ["bulk_diamond"] #, "surface-energy-100-unrelaxed", "surface-energy-111-unrelaxed"  # "bulk_fcc", "bulk_hcp", "bulk_bcc", "bulk_st12" , "bulk_sh", "bulk_hex_diamond", "bulk_hcp_short_and_fat"] #"surface-energy-110-unrelaxed",
 	elif element == "W":
-		tests = ["bulk_bcc", "surface-energy-100-unrelaxed"]#, "surface-energy-111-unrelaxed", "surface-energy-100-unrelaxed"] #, "surface-energy-100-unrelaxed", "surface-energy-110-unrelaxed", "surface-energy-111-unrelaxed"
+		tests = ["bulk_bcc"]#, "surface-energy-100-relaxed", "surface-energy-111-relaxed"]#, "surface-energy-111-unrelaxed", "surface-energy-100-unrelaxed"] #, "surface-energy-100-unrelaxed", "surface-energy-110-unrelaxed", "surface-energy-111-unrelaxed"
 	elif element == "Ti":
+		#potentials.append("NRLTB16")
 		tests = [ "bulk_bcc", "bulk_hcp"] #"surface-decohesion-110-unrelaxed","surface-energy-110-unrelaxed",
 	for test in sorted(tests):
 		if test.split('_')[0] == "bulk":
@@ -102,29 +104,48 @@ def table_plot(potentials, element):
 					elif type(entry) == list:
 						V = [entry[i][0] for i in xrange(0,len(entry))]
 						E = [entry[i][1] for i in xrange(0,len(entry))]
-						print json_file, E, V
-						E_shift = [ E[i]-min(E) for i in xrange(0,len(E))]
-						plt.plot(V,E_shift, label=model_name)
+						#print json_file, E, V
+						#E_shift = [ E[i] for i in xrange(0,len(E))] #-min(E)
+						print E, min(E) 
+						print V#, V[min(E)]
+						plt.plot(V,E, label=model_name)
 			except:
 				print "continue"
 		if test.split('_')[0] == "bulk":
 			path = os.path.join(image_folder, test)
 			plt.legend()
-			plt.xlabel("Volume (A)")
+			plt.xlabel(r"Volume ($\AA^{3}$)")
 			plt.ylabel("Energy (eV)")
 			plt.title(test)
+			plt.tight_layout()
 			plt.savefig(path)
 	print data_dict
 
 	for key in data_dict.keys():
 		print key, len(data_dict[key])
 
+	print data_dict
+	
 	df = pd.DataFrame.from_dict(data_dict)	
 
-	#columnsTitles=[ "-", "NRLTB", "GAP_soap", "Ti_Env4B_reg_tmp"]
-	#df=df.reindex(columns=columnsTitles)
+	columnsTitles = ["-"]
 
-	print df
+	models = list(df)
+	del models[models.index("-")]
+
+	for model in models:
+		if model.startswith("CASTEP"):
+			columnsTitles.append(model)
+			del models[models.index(model)]
+		if model.startswith("NRLTB"):
+			columnsTitles.append(model)
+			del models[models.index(model)]
+
+	columnsTitles += models 
+	#columnsTitles=[ "-", "NRLTB16", "GAP_hcp_bcc_varcell16_r2", "PIP_hcp_bcc_varcell16_r2", "GAP_hcp_bcc_varcell16_r2_sp", "GAP_hcp_bcc_varcell16_r2_ds"]
+	df=df.reindex(columns=columnsTitles)
+
+	#print df
 
 	df = pct_change(df)
 	
@@ -194,6 +215,7 @@ def decohesion_plot(potentials, element):
 			ax2.set_ylabel("Stress")
 		plt.legend()
 		path = os.path.join(image_folder, test)
+		plt.tight_layout()
 		plt.savefig(path)	
 
 def fourfold_plot(potentials, element):
@@ -211,6 +233,7 @@ def fourfold_plot(potentials, element):
 		plt.title(test)
 	plt.legend()
 	path = os.path.join(image_folder, test)
+	plt.tight_layout()
 	plt.savefig(path)
 
 def grain_plot(potentials, element):
@@ -228,6 +251,7 @@ def grain_plot(potentials, element):
 		plt.title(test)
 	plt.legend()
 	path = os.path.join(image_folder, test)
+	plt.tight_layout()
 	plt.savefig(path)
 
 def diinterstitial_plot(potentials, element):
@@ -246,6 +270,7 @@ def diinterstitial_plot(potentials, element):
 		plt.title(test)
 	plt.legend()
 	path = os.path.join(image_folder, test)
+	plt.tight_layout()
 	plt.savefig(path)
 
 def vacancy_path_plot(potentials, element):
@@ -263,23 +288,35 @@ def vacancy_path_plot(potentials, element):
 		plt.title(test)
 	plt.legend()
 	path = os.path.join(image_folder, test)
+	plt.tight_layout()
 	plt.savefig(path)
 
 def dimer_plot(potentials, element):
 	test = "dimer"
+	plt.figure(figsize=(8,8))
+	minE = 0
 	for json_file in sorted(glob.glob(cwd + "/element-{0}-model-*-test-{1}-properties.json".format(element, test))):
 		model_name = os.path.basename(json_file).split('-')[3]
 		if model_name not in potentials:
 			continue
 		data = json.load(open(json_file))
 		rr = data[data.keys()[1]]
+		print rr
 		E = data[data.keys()[0]]
+		if min(E) < minE:
+			minE = min(E)
 		p = plt.plot(rr, E, label=model_name)
-		plt.xlabel("Distance (A)")
-		plt.ylabel("Energy (eV)")
-		plt.title(test)
+	#plt.xlim([2.8,3.1])
+	plt.axvline(x=data[data.keys()[2]], color="red", label=r"$r_{nn}$")
+	#plt.xlim([2.5, 7])
+	plt.ylim([minE*1.1, -minE])
+	#plt.ylim([-1,1])
+	plt.xlabel(r"Distance ($\AA$)")
+	plt.ylabel("Energy (eV)")
+	plt.title(test)
 	plt.legend()
 	path = os.path.join(image_folder, test)
+	plt.tight_layout()
 	plt.savefig(path)
 
 def force_constant_plot(force_constant, pot, element):
@@ -316,24 +353,25 @@ def force_constant_plot(force_constant, pot, element):
 #table_plot(args.potentials, args.element)
 
 def layer_plot(potentials, element):
-	test = "111_layer_test"
+	test = "layer_test"
 	plt.figure(figsize=(8,8))
-	potentials.append("CASTEP_ASE")
+	#potentials.append("CASTEP_ASE")
 	for json_file in sorted(glob.glob(cwd + "/element-{0}-model-*-test-{1}-properties.json".format(element, test))):
 		model_name = os.path.basename(json_file).split('-')[3]
 		if model_name not in potentials:
 			continue
 		data = json.load(open(json_file))
-		E = [data[data.keys()[0]][i][1]/6 for i in xrange(0,len(data[data.keys()[0]]))] #24 atoms!
-		E_per_a  = np.array(E) - min(E)
-		spacing = [0.02*i for i in xrange(0,len(E))]
+		E = [data[data.keys()[0]][i] for i in xrange(0,len(data[data.keys()[0]]))] #24 atoms!
+		E_per_a  = np.array(E)
+		spacing = [0.03*i for i in xrange(0,len(E))]
 		plt.plot(spacing, E_per_a, label=model_name)
 		plt.xlabel("Interplanar displacement (Angstrom)")
 		plt.ylabel("Energy per atom (eV)")
 		plt.title(test)
 	plt.legend()
-	test = "z111_layer_test"
+	test = "layer_test"
 	path = os.path.join(image_folder, test)
+	plt.tight_layout()
 	plt.savefig(path)
 
 
@@ -346,13 +384,14 @@ def burgers_path(potentials, element):
 			continue
 		data = json.load(open(json_file))
 		E = [data[data.keys()[0]][i][1] for i in xrange(0,len(data[data.keys()[0]]))] #24 atoms!
-		E_per_a  = np.array(E) - min(E)
+		E_per_a  = np.array(E)
 		#spacing = [0.02*i for i in xrange(0,len(E))]
 		plt.plot(E_per_a, label=model_name)
 	plt.xlabel("Transform bcc to hcp")
 	plt.ylabel("Energy per atom (eV)")
-	plt.title(test)
+	#plt.title(test)
 	plt.legend()
+	plt.tight_layout()
 	path = os.path.join(image_folder, test)
 	plt.savefig(path)
 
@@ -392,6 +431,7 @@ def phonon(potentials, element, phase):
 	plt.grid('on')
 	plt.title(test)
 	plt.legend()
+	plt.tight_layout()
 	path = os.path.join(image_folder, test)
 	plt.savefig(path)
 
@@ -403,20 +443,23 @@ for pot in args.potentials:
 if args.element == "Si":
 	pot_info(args.potentials, args.element)
 	layer_plot(args.potentials, args.element)
-	#dimer_plot(args.potentials, args.element)
+	dimer_plot(args.potentials, args.element)
 	#vacancy_path_plot(args.potentials, args.element)
 	#fourfold_plot(args.potentials, args.element)
 	table_plot(args.potentials, args.element)
 	decohesion_plot(args.potentials, args.element)
 elif args.element == "W":
+	pot_info(args.potentials, args.element)
+	layer_plot(args.potentials, args.element)
 	table_plot(args.potentials, args.element)
+	dimer_plot(args.potentials, args.element)
 	decohesion_plot(args.potentials, args.element)
 elif args.element == "Ti":
 	pot_info(args.potentials, args.element)
 	#phonon(args.potentials, args.element, "bcc")
 	#phonon(args.potentials, args.element, "bcc")
 	burgers_path(args.potentials, args.element)
-	#dimer_plot(args.potentials, args.element)
+	dimer_plot(args.potentials, args.element)
 	table_plot(args.potentials, args.element)
 	decohesion_plot(args.potentials, args.element)
 #grain_plot(args.potentials, args.element)

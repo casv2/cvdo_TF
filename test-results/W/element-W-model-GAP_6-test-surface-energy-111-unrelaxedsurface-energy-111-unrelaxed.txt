@@ -1,5 +1,5 @@
 Model GAP_6, Test surface-energy-111-unrelaxedsurface-energy-111-unrelaxed
-Test run at 2018-10-04 22:50
+Test run at 2018-11-04 13:35
 
 model file: ../../../models/W/GAP_6/model.py
 ============================================================

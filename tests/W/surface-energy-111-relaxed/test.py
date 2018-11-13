@@ -40,7 +40,7 @@ else:
 
 a0 = bulk.cell[0,0] # get lattice constant from relaxed bulk
 print "got a0 ", a0
-bulk = Diamond(symbol="Si", latticeconstant=a0, directions=[[1,-1,0],[1,0,-1],[1,1,1]])
+bulk = BodyCenteredCubic(symbol="W", latticeconstant=a0, directions=[[1,-1,0],[1,0,-1],[1,1,1]])
 bulk.set_calculator(model.calculator)
 
 # set up supercell

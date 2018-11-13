@@ -1,5 +1,5 @@
 Model PIP_Si_4BBAenv_sw3, Test surface-decohesion-110-unrelaxed
-Test run at 2018-10-24 11:43
+Test run at 2018-10-26 12:34
 
 model file: ../../../models/Si/PIP_Si_4BBAenv_sw3/model.py
 ============================================================
@@ -116,19 +116,3 @@ print "stresses ", stresses
 properties = {'surface_decohesion_unrelaxed_opening': openings, 'surface_decohesion_unrelaxed_energy' : es, 'surface_decohesion_unrelaxed_stress' : stresses}
 
 ============================================================
-relax_atoms_cell using method cg_n
-WARNING:quippy.potential:Minim atoms is not quippy.Atoms instance, copy forced!
-/home/casv2/miniconda2/lib/python2.7/site-packages/ase/atoms.py:764: UserWarning: Converting 3x3 stress tensor from JulipCalculator calculator to the required Voigt form.
-  'calculator to the required Voigt form.')
-Traceback (most recent call last):
-  File "run-model-test-cas.py", line 102, in <module>
-    import test  # import and run the current test
-  File "../../../tests/Si/surface-decohesion-110-unrelaxed/test.py", line 46, in <module>
-    ase.io.write(sys.stdout, bulk, format='extxyz')
-  File "/home/casv2/miniconda2/lib/python2.7/site-packages/ase/io/formats.py", line 382, in write
-    _write(filename, fd, format, io, images, parallel=parallel, append=append, **kwargs)
-  File "/home/casv2/miniconda2/lib/python2.7/site-packages/ase/io/formats.py", line 414, in _write
-    io.write(fd, images, **kwargs)
-  File "/home/casv2/miniconda2/lib/python2.7/site-packages/ase/io/extxyz.py", line 751, in write_xyz
-    xx, yy, zz, yz, xz, xy = value
-ValueError: need more than 3 values to unpack

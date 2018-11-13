@@ -25,7 +25,7 @@ a0 = 3.16 # initial guess at lattice constant, cell will be relaxed below
 fmax = 0.01 # maximum force following relaxtion [eV/A]
 
 # set up the a
-bulk = BodyCenteredCubic(symbol='W', latticeconstant=a0, directions=[[1,-1,0],[0,0,1],[1,1,0]])
+bulk = BodyCenteredCubic(symbol='W', latticeconstant=a0, directions=[[1,1,0],[-1,1,0],[0,0,1]])
 
 # specify that we will use model.calculator to compute forces, energies and stresses
 bulk.set_calculator(model.calculator)

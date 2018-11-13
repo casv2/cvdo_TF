@@ -66,7 +66,7 @@ def surface_energy(bulk, z_offset, opening):
 #   be compared with other models
 
 n_steps = 30
-max_opening = 3.0
+max_opening = 5.0
 
 openings = []
 es = []

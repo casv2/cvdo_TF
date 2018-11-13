@@ -55,7 +55,7 @@ def surface_energy(bulk, opening):
 # dictionary of computed properties - this is output of this test, to
 #   be compared with other models
 n_steps = 35
-max_opening = 3.5
+max_opening = 5
 
 openings = []
 es = []
