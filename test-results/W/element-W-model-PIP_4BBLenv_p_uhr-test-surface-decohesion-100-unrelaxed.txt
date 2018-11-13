@@ -1,5 +1,5 @@
 Model PIP_4BBLenv_p_uhr, Test surface-decohesion-100-unrelaxed
-Test run at 2018-11-13 11:19
+Test run at 2018-11-13 19:40
 
 model file: ../../../models/W/PIP_4BBLenv_p_uhr/model.py
 ============================================================
@@ -116,11 +116,11 @@ properties = {'surface_decohesion_unrelaxed_opening': openings, 'surface_decohes
 relax_atoms_cell using method lbfgs
 /Users/Cas/.local/lib/python2.7/site-packages/ase/atoms.py:763: UserWarning: Converting 3x3 stress tensor from JulipCalculator calculator to the required Voigt form.
   'calculator to the required Voigt form.')
-PreconLBFGS:   0  11:19:53      -22.397807       0.0000       0.0313
+PreconLBFGS:   0  19:40:54      -22.397807       0.0000       0.0313
 INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
-PreconLBFGS:   1  11:19:53      -22.404972       0.0000       0.0116
+PreconLBFGS:   1  19:40:54      -22.404972       0.0000       0.0116
 INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
-PreconLBFGS:   2  11:19:53      -22.406146       0.0000       0.0001
+PreconLBFGS:   2  19:40:54      -22.406146       0.0000       0.0001
 bulk cell energy -112.030731475
 expanded cell energy -112.030731475
 unrelaxed 100 surface formation energy 0.0

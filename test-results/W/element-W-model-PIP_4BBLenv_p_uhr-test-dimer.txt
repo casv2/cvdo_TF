@@ -1,5 +1,5 @@
 Model PIP_4BBLenv_p_uhr, Test dimer
-Test run at 2018-11-13 11:19
+Test run at 2018-11-13 19:45
 
 model file: ../../../models/W/PIP_4BBLenv_p_uhr/model.py
 ============================================================
@@ -77,8 +77,7 @@ for r in np.arange(2,7.0,0.1):
     e.append(dimer.get_potential_energy() - (2*e0))
     rr.append(r)
 
-properties = {'dimer distance':rr, 'dimer energy': e, 'rnn' : rnn}
-============================================================
+properties = {'dimer distance':rr, 'dimer energy': e, 'rnn' : rnn}============================================================
 ============================================================
 Property calculation output:
 

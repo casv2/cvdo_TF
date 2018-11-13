@@ -1,5 +1,5 @@
 Model GAP_6, Test dimer
-Test run at 2018-11-04 14:03
+Test run at 2018-11-13 19:44
 
 model file: ../../../models/W/GAP_6/model.py
 ============================================================
@@ -75,8 +75,7 @@ for r in np.arange(2,7.0,0.1):
     e.append(dimer.get_potential_energy() - (2*e0))
     rr.append(r)
 
-properties = {'dimer distance':rr, 'dimer energy': e, 'rnn' : rnn}
-============================================================
+properties = {'dimer distance':rr, 'dimer energy': e, 'rnn' : rnn}============================================================
 ============================================================
 Property calculation output:
 

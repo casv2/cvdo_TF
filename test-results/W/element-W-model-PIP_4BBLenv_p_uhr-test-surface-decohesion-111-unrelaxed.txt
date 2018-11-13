@@ -1,5 +1,5 @@
 Model PIP_4BBLenv_p_uhr, Test surface-decohesion-111-unrelaxed
-Test run at 2018-11-13 11:19
+Test run at 2018-11-13 19:40
 
 model file: ../../../models/W/PIP_4BBLenv_p_uhr/model.py
 ============================================================
@@ -127,12 +127,12 @@ properties = {'surface_decohesion_unrelaxed_opening': openings, 'surface_decohes
 relax_atoms_cell using method lbfgs
 /Users/Cas/.local/lib/python2.7/site-packages/ase/atoms.py:763: UserWarning: Converting 3x3 stress tensor from JulipCalculator calculator to the required Voigt form.
   'calculator to the required Voigt form.')
-PreconLBFGS:   0  11:19:53      -33.596708       0.0000       0.0313
+PreconLBFGS:   0  19:40:54      -33.596708       0.0000       0.0313
 INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
-PreconLBFGS:   1  11:19:53      -33.604967       0.0000       0.0181
+PreconLBFGS:   1  19:40:54      -33.604967       0.0000       0.0181
 INFO:ase.utils.linesearcharmijo:a1 = 1.972, suff_dec = False
 INFO:ase.utils.linesearcharmijo:a1 = 1.014, suff_dec = True
-PreconLBFGS:   2  11:19:54      -33.609218       0.0000       0.0000
+PreconLBFGS:   2  19:40:55      -33.609218       0.0000       0.0000
 bulk cell energy -168.046094778
 15
 Lattice="4.494139121522096 -1.726611688566367e-08 8.02787496569652e-09 2.247069545808152 3.89203874222726 1.2038676448512286e-08 2.4580247368900608e-08 2.8371737051153243e-08 13.760434842435894" Properties=species:S:1:pos:R:3:Z:I:1 energy=-168.046094778 pbc="T T T"

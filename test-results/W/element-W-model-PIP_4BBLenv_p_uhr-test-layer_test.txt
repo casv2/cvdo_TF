@@ -1,5 +1,5 @@
 Model PIP_4BBLenv_p_uhr, Test layer_test
-Test run at 2018-11-13 11:19
+Test run at 2018-11-13 19:45
 
 model file: ../../../models/W/PIP_4BBLenv_p_uhr/model.py
 ============================================================
@@ -63,8 +63,7 @@ for at in ats:
     e = at.get_potential_energy()/len(at)
     Es.append(e)
 
-properties = {'E' : Es}
-============================================================
+properties = {'E' : Es}============================================================
 ============================================================
 Property calculation output:
 

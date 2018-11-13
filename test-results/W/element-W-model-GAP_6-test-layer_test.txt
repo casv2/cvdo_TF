@@ -1,5 +1,5 @@
 Model GAP_6, Test layer_test
-Test run at 2018-11-10 20:50
+Test run at 2018-11-13 19:44
 
 model file: ../../../models/W/GAP_6/model.py
 ============================================================
@@ -61,8 +61,7 @@ for at in ats:
     e = at.get_potential_energy()/len(at)
     Es.append(e)
 
-properties = {'E' : Es}
-============================================================
+properties = {'E' : Es}============================================================
 ============================================================
 Property calculation output:
 
