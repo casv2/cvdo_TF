@@ -1,0 +1,284 @@
+WARNING: Method definition (::Type{ASE.ASECalculator})(Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+WARNING: Method definition (::Type{ASE.ASECalculator})(Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+WARNING: Method definition (::Type{ASE.ASECalculator})(Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+WARNING: Method definition (::WARNING: Method definition (::Type{TypeWARNING: Method definition (::Type{ASEASE.WARNING: Method definition (::Type{ASE{WARNING: Method definition .ASECalculator})(Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwrittenASECalculator})(Any) in module ASEWARNING: Method definition .ASECalculator}ASE.ASECalculator})(Any)(::Type{ in module Main at none:1.
+WARNING: Method definition (::Type{ASE.ASECalculator})(Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+ at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+(::Type{ASE) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+WARNING: Method definition (::Type{ASE.ASECalculator})(AnyASE.() in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.ASECalculatorASECalculator})(Any.
+}Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main at none:1.
+)() in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379Any) in module ASE at /home/casv2/.julia/v0.6/ASE/src/ASE.jl:379 overwritten in module Main overwritten at none:1.
+ in module Main at none:1.
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+WARNING: imported binding for info overwritten in module Main
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw3_reg-test-dimer'
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw3_reg-test-111_layer_test'
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw3_reg-test-vac-path-no-relax-configs'
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw3_reg-test-surface-energy-111-unrelaxed'
+both_func got max force component .14844821695464025E-007 on atom 1 max virial component 1.2772243289447351
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -979.08445932903749 .13594182290089202 .13594182290089202 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -979.08445932903749 .13594182290089202 .13594182290089202 1 n_minim pre linmin
+both_func got max force component -.19099123384612092E-007 on atom 5 max virial component 1.1763853124293648
+both_func got max force component .20945539152679012E-007 on atom 2 max virial component 1.0768437903663661
+both_func got max force component .27178682215680508E-007 on atom 2 max virial component .88154449629255194
+both_func got max force component -.27925732182309848E-007 on atom 5 max virial component .50532487371773904
+both_func got max force component -.61830299158172489E-007 on atom 1 max virial component .19553276031027939
+both_func got max force component .52733507733834980E-007 on atom 2 max virial component .63715793472401885E-002
+cg_n .00000000000000000E+000 -979.09555214661793 -.67815069820616723E-003 .33829792893104873E-005 7 n_minim post linmin
+cg_n .00000000000000000E+000 -979.09555214661793 .68491665678478816E-003 .33829792893104873E-005 7 n_minim with new dir
+cg_n .00000000000000000E+000 -979.09555214661793 .68491665678478816E-003 .33829792893104873E-005 7 FINAL_VAL
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw3_reg-test-surface-energy-100-unrelaxed'
+both_func got max force component .25936982495108056E-001 on atom 3 max virial component 1.7029657793390101
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.4459457862640 .14670546213820293 .14670546213820293 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.4459457862640 .14670546213820293 .14670546213820293 1 n_minim pre linmin
+both_func got max force component -.25250097704201960E-001 on atom 2 max virial component 1.6321166035209151
+both_func got max force component -.24560797975061579E-001 on atom 2 max virial component 1.5617352693229392
+both_func got max force component -.23174824071951268E-001 on atom 4 max virial component 1.4223552680184330
+both_func got max force component -.20372178181079566E-001 on atom 4 max virial component 1.1489783892327727
+both_func got max force component -.14634566412068088E-001 on atom 6 max virial component .62259032394908098
+both_func got max force component -.26975127723317086E-002 on atom 8 max virial component .35935092885908299
+both_func got max force component -.67219597593347171E-002 on atom 2 max virial component .38442807131471496E-001
+cg_n .00000000000000000E+000 -1305.4620725425307 -.77081107373570400E-003 .57670425158826805E-003 8 n_minim post linmin
+cg_n .00000000000000000E+000 -1305.4620725425307 .19242195769122396E-002 .57670425158826805E-003 8 n_minim with new dir
+cg_n .00000000000000000E+000 -1305.4620725425307 .19242195769122396E-002 .57670425158826805E-003 8 FINAL_VAL
+both_func got max force component -.41988394169299901E-008 on atom 2 max virial component .85148288537069827
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -652.72297290439553 .13594182945042535 .13594182945042535 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -652.72297290439553 .13594182945042535 .13594182945042535 1 n_minim pre linmin
+both_func got max force component .53429146473071312E-008 on atom 2 max virial component 1.0059993922448196
+both_func got max force component -.69785452978172042E-008 on atom 1 max virial component 1.1651978007952022
+both_func got max force component .10776953031913613E-007 on atom 3 max virial component 1.4984888304417954
+both_func got max force component .18271484417946190E-007 on atom 2 max virial component 2.2306750795962125
+both_func got max force component .29579532746777490E-007 on atom 2 max virial component 3.9716024159910210
+both_func got max force component -.70659566169235554E-007 on atom 1 max virial component 7.9887344022726046
+both_func got max force component -.16496742584638259E-006 on atom 1 max virial component 10.715184836978956
+both_func got max force component -.30227664770516097E-005 on atom 2 max virial component 133.46885577839566
+both_func got max force component .50004143155771728E-002 on atom 2 max virial component 59612.258455185052
+both_func got max force component -.32880194183947826E-005 on atom 2 max virial component 134.44999510617970
+both_func got max force component -.35355006594600255E-005 on atom 2 max virial component 135.40406895219292
+both_func got max force component -.36600976551062734E-005 on atom 2 max virial component 136.32103672991133
+both_func got max force component -.39247535023635874E-005 on atom 2 max virial component 137.20477877173491
+both_func got max force component -.39854328010925416E-005 on atom 2 max virial component 138.05375889696225
+both_func got max force component -.41651954910599956E-005 on atom 2 max virial component 138.86547381613846
+both_func got max force component -.43884023239525100E-005 on atom 2 max virial component 139.63304397174147
+both_func got max force component -.45214013502792740E-005 on atom 2 max virial component 140.35540728034496
+both_func got max force component -.48630529266448519E-005 on atom 2 max virial component 141.03223112371865
+both_func got max force component -.51694342702940695E-005 on atom 2 max virial component 141.66085591952805
+cg_n .00000000000000000E+000 -642.19923191506484 22.616585687451593 3762.7119645641428 20 n_minim post linmin
+WARNING:n_minim: n_limin stepped uphill - forces may not be consistent with energy
+cg_n .00000000000000000E+000 -642.19923191506484 626000.82629311713 3762.7119645641428 20 n_minim with new dir
+cg_n .00000000000000000E+000 -642.19923191506484 626000.82629311713 3762.7119645641428 20 n_minim pre linmin
+both_func got max force component -.73175555345709865E-005 on atom 2 max virial component 144.67893430249902
+both_func got max force component -.10310740991009492E-004 on atom 2 max virial component 142.40820571705692
+both_func got max force component -.17907507308360833E-004 on atom 2 max virial component 114.99652184554280
+both_func got max force component .44323619593256234E-004 on atom 1 max virial component 94.265136624864709
+both_func got max force component .30184191548674604E-004 on atom 1 max virial component 32.181248570975796
+both_func got max force component .33535965853059705E-004 on atom 1 max virial component 5.4766367678635968
+both_func got max force component .34014010605293089E-004 on atom 1 max virial component .87465942592417667
+both_func got max force component -.33919533475605757E-004 on atom 2 max virial component .14759491962971580
+both_func got max force component -.34102324113498030E-004 on atom 2 max virial component .24853461393997238E-001
+cg_n .00000000000000000E+000 -636.74562945399975 109.74966631426254 .11565865994697533E-003 29 n_minim post linmin
+WARNING:n_minim: n_limin stepped uphill - forces may not be consistent with energy
+cg_n .00000000000000000E+000 -636.74562945399975 -109.73030857241969 .11565865994697533E-003 29 n_minim with new dir
+cg_n .00000000000000000E+000 -636.74562945399975 -109.73030857241969 .11565865994697533E-003 29 FINAL_VAL
+both_func got max force component -.41988394169299901E-008 on atom 2 max virial component .85148288537069827
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -652.72297290439553 .13594182945042535 .13594182945042535 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -652.72297290439553 .13594182945042535 .13594182945042535 1 n_minim pre linmin
+both_func got max force component .53429146473071312E-008 on atom 2 max virial component 1.0059993922448196
+both_func got max force component -.69785452978172042E-008 on atom 1 max virial component 1.1651978007952022
+both_func got max force component .10776953031913613E-007 on atom 3 max virial component 1.4984888304417954
+both_func got max force component .18271484417946190E-007 on atom 2 max virial component 2.2306750795962125
+both_func got max force component .29579532746777490E-007 on atom 2 max virial component 3.9716024159910210
+both_func got max force component -.70659566169235554E-007 on atom 1 max virial component 7.9887344022726046
+both_func got max force component -.16496742584638259E-006 on atom 1 max virial component 10.715184836978956
+both_func got max force component -.30227664770516097E-005 on atom 2 max virial component 133.46885577839566
+both_func got max force component .50004143155771728E-002 on atom 2 max virial component 59612.258455185052
+both_func got max force component -.32880194183947826E-005 on atom 2 max virial component 134.44999510617970
+both_func got max force component -.35355006594600255E-005 on atom 2 max virial component 135.40406895219292
+both_func got max force component -.36600976551062734E-005 on atom 2 max virial component 136.32103672991133
+both_func got max force component -.39247535023635874E-005 on atom 2 max virial component 137.20477877173491
+both_func got max force component -.39854328010925416E-005 on atom 2 max virial component 138.05375889696225
+both_func got max force component -.41651954910599956E-005 on atom 2 max virial component 138.86547381613846
+both_func got max force component -.43884023239525100E-005 on atom 2 max virial component 139.63304397174147
+both_func got max force component -.45214013502792740E-005 on atom 2 max virial component 140.35540728034496
+both_func got max force component -.48630529266448519E-005 on atom 2 max virial component 141.03223112371865
+both_func got max force component -.51694342702940695E-005 on atom 2 max virial component 141.66085591952805
+cg_n .00000000000000000E+000 -642.19923191506484 22.616585687451593 3762.7119645641428 20 n_minim post linmin
+WARNING:n_minim: n_limin stepped uphill - forces may not be consistent with energy
+cg_n .00000000000000000E+000 -642.19923191506484 626000.82629311713 3762.7119645641428 20 n_minim with new dir
+cg_n .00000000000000000E+000 -642.19923191506484 626000.82629311713 3762.7119645641428 20 n_minim pre linmin
+both_func got max force component -.73175555345709865E-005 on atom 2 max virial component 144.67893430249902
+both_func got max force component -.10310740991009492E-004 on atom 2 max virial component 142.40820571705692
+both_func got max force component -.17907507308360833E-004 on atom 2 max virial component 114.99652184554280
+both_func got max force component .44323619593256234E-004 on atom 1 max virial component 94.265136624864709
+both_func got max force component .30184191548674604E-004 on atom 1 max virial component 32.181248570975796
+both_func got max force component .33535965853059705E-004 on atom 1 max virial component 5.4766367678635968
+both_func got max force component .34014010605293089E-004 on atom 1 max virial component .87465942592417667
+both_func got max force component -.33919533475605757E-004 on atom 2 max virial component .14759491962971580
+both_func got max force component -.34102324113498030E-004 on atom 2 max virial component .24853461393997238E-001
+cg_n .00000000000000000E+000 -636.74562945399975 109.74966631426254 .11565865994697533E-003 29 n_minim post linmin
+WARNING:n_minim: n_limin stepped uphill - forces may not be consistent with energy
+cg_n .00000000000000000E+000 -636.74562945399975 -109.73030857241969 .11565865994697533E-003 29 n_minim with new dir
+cg_n .00000000000000000E+000 -636.74562945399975 -109.73030857241969 .11565865994697533E-003 29 FINAL_VAL
+both_func got max force component -.14714887384725612E-018 on atom 1 max virial component 2.3569615140677800
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.4334534121606 .26040316775609440 .26040316775609440 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.4334534121606 .26040316775609440 .26040316775609440 1 n_minim pre linmin
+both_func got max force component -.12266742064799886E-018 on atom 4 max virial component 2.2988049408634703
+both_func got max force component .12271078742101878E-018 on atom 5 max virial component 2.2409646346717764
+both_func got max force component .98238035168209588E-019 on atom 1 max virial component 2.1262228853127261
+both_func got max force component .73782689406937286E-019 on atom 2 max virial component 1.9004249520877283
+both_func got max force component .17523433342091452E-018 on atom 6 max virial component 1.4630207495689054
+both_func got max force component .17362149638140259E-018 on atom 4 max virial component .64063522334986167
+both_func got max force component .10424099066563542E-018 on atom 3 max virial component .82814183350686377
+both_func got max force component .14954958214467805E-018 on atom 7 max virial component .25963484784682800E-001
+both_func got max force component -.17444124908581397E-018 on atom 3 max virial component .80262554821800166E-003
+cg_n .00000000000000000E+000 -1305.4607367077219 -.88676134094877281E-004 .30197239249324078E-007 10 n_minim post linmin
+cg_n .00000000000000000E+000 -1305.4607367077219 .88736528573375918E-004 .30197239249324078E-007 10 n_minim with new dir
+cg_n .00000000000000000E+000 -1305.4607367077219 .88736528573375918E-004 .30197239249324078E-007 10 FINAL_VAL
+both_func got max force component .54651073222680616E-018 on atom 2 max virial component .43368086899420177E-018
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.4607367015496 .13167403577202109E-035 .13167403577202109E-035 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.4607367015496 .13167403577202109E-035 .13167403577202109E-035 1 FINAL_VAL
+both_func got max force component .12256974887117147E-018 on atom 4 max virial component .88817841970012523E-015
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.4302241705529 .24651970823518703E-031 .24651970823518703E-031 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.4302241705529 .24651970823518703E-031 .24651970823518703E-031 1 FINAL_VAL
+both_func got max force component -.72907836314000433E-019 on atom 2 max virial component .43062557066500858E-015
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.3245959353287 .57949967063364526E-032 .57949967063364526E-032 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.3245959353287 .57949967063364526E-032 .57949967063364526E-032 1 FINAL_VAL
+both_func got max force component .96350133845091123E-019 on atom 6 max virial component .36431492940227033E-014
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.1176346737802 .71058964962444871E-030 .71058964962444871E-030 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.1176346737802 .71058964962444871E-030 .71058964962444871E-030 1 FINAL_VAL
+both_func got max force component -.15275991439773122E-018 on atom 3 max virial component .35527136788005009E-014
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1304.7862560062695 .29582291912608757E-030 .29582291912608757E-030 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1304.7862560062695 .29582291912608757E-030 .29582291912608757E-030 1 FINAL_VAL
+both_func got max force component .14371613982576861E-018 on atom 4 max virial component .71054273576010019E-014
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw3_reg-test-surface-decohesion-111-unrelaxed'
+both_func got max force component .14844821695464025E-007 on atom 1 max virial component 1.2772243289447351
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -979.08445932903749 .13594182290089202 .13594182290089202 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -979.08445932903749 .13594182290089202 .13594182290089202 1 n_minim pre linmin
+both_func got max force component -.19099123384612092E-007 on atom 5 max virial component 1.1763853124293648
+both_func got max force component .20945539152679012E-007 on atom 2 max virial component 1.0768437903663661
+both_func got max force component .27178682215680508E-007 on atom 2 max virial component .88154449629255194
+both_func got max force component -.27925732182309848E-007 on atom 5 max virial component .50532487371773904
+both_func got max force component -.61830299158172489E-007 on atom 1 max virial component .19553276031027939
+both_func got max force component .52733507733834980E-007 on atom 2 max virial component .63715793472401885E-002
+cg_n .00000000000000000E+000 -979.09555214661793 -.67815069820616723E-003 .33829792893104873E-005 7 n_minim post linmin
+cg_n .00000000000000000E+000 -979.09555214661793 .68491665678478816E-003 .33829792893104873E-005 7 n_minim with new dir
+cg_n .00000000000000000E+000 -979.09555214661793 .68491665678478816E-003 .33829792893104873E-005 7 FINAL_VAL
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw3_reg-test-bulk_diamond'
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1304.3282769999519 .98607625932760729E-030 .98607625932760729E-030 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1304.3282769999519 .98607625932760729E-030 .98607625932760729E-030 1 FINAL_VAL
+both_func got max force component -.26905715506848705E-019 on atom 1 max virial component .66613381477509392E-015
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.4352973180989 .13705201694649198E-031 .13705201694649198E-031 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.4352973180989 .13705201694649198E-031 .13705201694649198E-031 1 FINAL_VAL
+both_func got max force component -.16834671613798452E-018 on atom 7 max virial component .44408920985006262E-015
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.3665262062020 .92446111182681414E-032 .92446111182681414E-032 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.3665262062020 .92446111182681414E-032 .92446111182681414E-032 1 FINAL_VAL
+both_func got max force component .37987364781567480E-019 on atom 7 max virial component .88817841970012523E-015
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.2628289148897 .32267166616346650E-031 .32267166616346650E-031 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.2628289148897 .32267166616346650E-031 .32267166616346650E-031 1 FINAL_VAL
+both_func got max force component -.38279586763608313E-019 on atom 1 max virial component .26645352591003757E-014
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.1278331052295 .18699680629674956E-030 .18699680629674956E-030 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.1278331052295 .18699680629674956E-030 .18699680629674956E-030 1 FINAL_VAL
+both_func got max force component .55367788843261370E-019 on atom 7 max virial component .30864893457377915E-014
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1304.9635509212824 .40863409013751472E-030 .40863409013751472E-030 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1304.9635509212824 .40863409013751472E-030 .40863409013751472E-030 1 FINAL_VAL
+both_func got max force component .11605956865702280E-019 on atom 4 max virial component .35527136788005009E-014
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1304.7802796360065 .33903146268546367E-030 .33903146268546367E-030 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1304.7802796360065 .33903146268546367E-030 .33903146268546367E-030 1 FINAL_VAL
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw3_reg-test-surface-decohesion-100-unrelaxed'
+both_func got max force component .25936982495108056E-001 on atom 3 max virial component 1.7029657793390101
+#cg_n use_precond=F
+#cg_n               x             val            -grad.dir                |grad|^2   n_evals
+cg_n .00000000000000000E+000 -1305.4459457862640 .14670546213820293 .14670546213820293 1 INITIAL_VAL
+cg_n .00000000000000000E+000 -1305.4459457862640 .14670546213820293 .14670546213820293 1 n_minim pre linmin
+both_func got max force component -.25250097704201960E-001 on atom 2 max virial component 1.6321166035209151
+both_func got max force component -.24560797975061579E-001 on atom 2 max virial component 1.5617352693229392
+both_func got max force component -.23174824071951268E-001 on atom 4 max virial component 1.4223552680184330
+both_func got max force component -.20372178181079566E-001 on atom 4 max virial component 1.1489783892327727
+both_func got max force component -.14634566412068088E-001 on atom 6 max virial component .62259032394908098
+both_func got max force component -.26975127723317086E-002 on atom 8 max virial component .35935092885908299
+both_func got max force component -.67219597593347171E-002 on atom 2 max virial component .38442807131471496E-001
+cg_n .00000000000000000E+000 -1305.4620725425307 -.77081107373570400E-003 .57670425158826805E-003 8 n_minim post linmin
+cg_n .00000000000000000E+000 -1305.4620725425307 .19242195769122396E-002 .57670425158826805E-003 8 n_minim with new dir
+cg_n .00000000000000000E+000 -1305.4620725425307 .19242195769122396E-002 .57670425158826805E-003 8 FINAL_VAL
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 164, in <module>
+    os.mkdir(dir_name)
+OSError: [Errno 2] No such file or directory: '../test-results/Si/model-PIP_Si_4BBAenv_sw3_reg-test-fourfold-defect-small-GAP_traj_eval'
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/scratch/tmp/1983524.1.bungo/runtime-casv2'
+qt.qpa.screen: QXcbConnection: Could not connect to display localhost:18.0
+Could not connect to any X display.
+['PIP_Si_4BBAenv_sw3_reg']
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/scratch/tmp/1983524.1.bungo/runtime-casv2'
+qt.qpa.screen: QXcbConnection: Could not connect to display localhost:18.0
+Could not connect to any X display.
+['PIP_Si_4BBAenv_sw3_reg']
+['python', 'model_info.py', 'Si', 'PIP_Si_4BBAenv_sw3_reg']
