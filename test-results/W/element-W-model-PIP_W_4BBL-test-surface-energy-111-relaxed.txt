@@ -1,0 +1,230 @@
+Model PIP_W_4BBL, Test surface-energy-111-relaxed
+Test run at 2018-11-05 17:32
+
+model file: ../../../models/W/PIP_W_4BBL/model.py
+============================================================
+import juliaimport
+import julip
+import os
+import glob
+
+"""
+pwd = os.getcwd()
+
+
+os.chdir(model_dir)
+
+json_file = glob.glob("*.json")[0]
+
+os.chdir(pwd)
+"""
+
+#IP = juliaimport.import_IP(model_dir + "/{0}".format(json_file))
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/W_4BBL_2s_med.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/W/surface-energy-111-relaxed/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import BodyCenteredCubic
+import numpy as np
+
+import ase.io, sys
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model
+
+a0 = 3.16 # initial guess at lattice constant, cell will be relaxed below
+fmax = 0.01 # maximum force following relaxtion [eV/A]
+
+if not hasattr(model, 'bulk_reference'):
+    # set up the a
+    bulk = BodyCenteredCubic(symbol='W', latticeconstant=a0)
+
+    # specify that we will use model.calculator to compute forces, energies and stresses
+    bulk.set_calculator(model.calculator)
+
+    # use one of the routines from utilities module to relax the initial
+    # unit cell and atomic positions
+    bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+else:
+    bulk = model.bulk_reference.copy()
+    bulk.set_calculator(model.calculator)
+
+a0 = bulk.cell[0,0] # get lattice constant from relaxed bulk
+print "got a0 ", a0
+bulk = BodyCenteredCubic(symbol="W", latticeconstant=a0, directions=[[1,-1,0],[1,0,-1],[1,1,1]])
+bulk.set_calculator(model.calculator)
+
+# set up supercell
+bulk *= (1, 1, 10)
+
+
+def surface_energy(bulk, z_offset):
+    Nat = bulk.get_number_of_atoms()
+
+    # shift so cut is through shuffle plane
+    bulk.positions[:,2] += z_offset
+    bulk.wrap()
+
+    # relax atom positions, holding cell fixed
+    # vac = relax_atoms(vac, fmax=fmax)
+
+    # compute surface formation energy as difference of bulk and expanded cell
+    ebulk = bulk.get_potential_energy()
+    print 'bulk cell energy', ebulk
+
+    bulk.cell[2,:] += [0.0,0.0,10.0]
+
+    np.random.seed(75)
+
+    bulk.positions += (np.random.rand((Nat*3))*0.1).reshape([Nat,3])
+    bulk = relax_atoms(bulk, tol=fmax, traj_file="model-"+model.name+"-surface-energy-111-relaxed.opt.xyz")
+
+    eexp  = bulk.get_potential_energy()
+
+    ase.io.write(sys.stdout, bulk, format='extxyz')
+
+    print 'expanded cell energy', eexp
+    e_form = 0.5*(eexp - ebulk) / np.linalg.norm(np.cross(bulk.cell[0,:],bulk.cell[1,:]))
+    print 'relaxed 111 surface formation energy', e_form
+    return e_form
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+properties = {'surface_energy_111_relaxed':
+                surface_energy(bulk, 2.0) }
+============================================================
+relax_atoms_cell using method lbfgs
+/Users/Cas/.local/lib/python2.7/site-packages/ase/atoms.py:763: UserWarning: Converting 3x3 stress tensor from JulipCalculator calculator to the required Voigt form.
+  'calculator to the required Voigt form.')
+PreconLBFGS:   0  17:33:12      -22.387112       0.0000       0.0315
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   1  17:33:13      -22.394499       0.0000       0.0123
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   2  17:33:13      -22.395811       0.0000       0.0006
+got a0  3.1784922862830283
+bulk cell energy -335.937169969
+PreconLBFGS:   0  17:33:14     -326.817412       1.8061
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   1  17:33:14     -327.254591       1.6766
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   2  17:33:15     -327.826578       1.1571
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   3  17:33:15     -327.879160       0.9897
+INFO:ase.utils.linesearcharmijo:a1 = 0.392, suff_dec = True
+PreconLBFGS:   4  17:33:15     -327.962836       0.5839
+INFO:ase.utils.linesearcharmijo:a1 = 1.676, suff_dec = False
+INFO:ase.utils.linesearcharmijo:a1 = 0.868, suff_dec = True
+PreconLBFGS:   5  17:33:16     -328.008951       0.5184
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   6  17:33:16     -328.019082       0.3785
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   7  17:33:17     -328.031334       0.1551
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   8  17:33:17     -328.035791       0.1174
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   9  17:33:18     -328.038465       0.0975
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  10  17:33:18     -328.040071       0.0842
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  11  17:33:18     -328.041808       0.0683
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  12  17:33:19     -328.042974       0.0572
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  13  17:33:19     -328.043671       0.0546
+INFO:ase.utils.linesearcharmijo:a1 = 1.956, suff_dec = True
+PreconLBFGS:  14  17:33:19     -328.044378       0.0551
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  15  17:33:20     -328.044843       0.0550
+INFO:ase.utils.linesearcharmijo:a1 = 0.414, suff_dec = True
+PreconLBFGS:  16  17:33:20     -328.045616       0.0505
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  17  17:33:20     -328.046669       0.0697
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  18  17:33:21     -328.047208       0.0785
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  19  17:33:21     -328.048594       0.0749
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  20  17:33:22     -328.049258       0.0477
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  21  17:33:22     -328.049578       0.0290
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  22  17:33:22     -328.049721       0.0252
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  23  17:33:23     -328.049867       0.0181
+INFO:ase.utils.linesearcharmijo:a1 = 1.863, suff_dec = True
+PreconLBFGS:  24  17:33:23     -328.050002       0.0241
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  25  17:33:24     -328.050062       0.0194
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  26  17:33:24     -328.050173       0.0103
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  27  17:33:25     -328.050210       0.0103
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:  28  17:33:25     -328.050242       0.0093
+30
+Lattice="4.495066899159725 0.0 0.0 2.2475334495798625 3.892842126382865 0.0 0.0 0.0 37.526550656539825" Properties=species:S:1:pos:R:3:Z:I:1 energy=-328.050242131 pbc="T T T"
+W       0.05156240       0.05197535       2.02866643       74 
+W       2.29887876       1.34953269       3.87642220       74 
+W       4.54652986       2.64725520       3.00756927       74 
+W       0.05133537       0.05198642       4.80800879       74 
+W       2.29871241       1.34966584       6.63961159       74 
+W       4.54640947       2.64719070       5.74112041       74 
+W       0.05111051       0.05204840       7.56310225       74 
+W       2.29811584       1.34982068       9.39674837       74 
+W       4.54598539       2.64728655       8.48256683       74 
+W       0.05006045       0.05239798      10.31545749       74 
+W       2.29658095       1.35064042      12.14980300       74 
+W       4.54452237       2.64797900      11.23312027       74 
+W       0.04856137       0.05323206      13.06741195       74 
+W       2.29527597       1.35103204      14.90260923       74 
+W       4.54327784       2.64857900      13.98503110       74 
+W       0.04741601       0.05350009      15.81934279       74 
+W       2.29436831       1.35149230      17.65554620       74 
+W       4.54215654       2.64886984      16.73710943       74 
+W       0.04663445       0.05411654      18.56967670       74 
+W       2.29379819       1.35227218      20.41263796       74 
+W       4.54154652       2.64962375      19.48919827       74 
+W       0.04606253       0.05485213      21.31074487       74 
+W       2.29366969       1.35278275      23.17526052       74 
+W       4.54104279       2.65034161      22.24376597       74 
+W       0.04624477       0.05517451      24.04287056       74 
+W       2.29430445       1.35303007      25.84687142       74 
+W       4.54153272       2.65059403      25.02350124       74 
+W       0.04690961       0.05554779      26.54031182       74 
+W       2.29926357       1.34961256       1.20421842       74 
+W       4.54694733       2.64715902       0.51013758       74 
+expanded cell energy -328.050242131
+relaxed 111 surface formation energy 0.22535900713670323
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'surface_energy_111_relaxed': '0.22535900713670323'}
+============================================================

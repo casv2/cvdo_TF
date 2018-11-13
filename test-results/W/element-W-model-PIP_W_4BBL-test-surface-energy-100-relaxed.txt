@@ -1,0 +1,237 @@
+Model PIP_W_4BBL, Test surface-energy-100-relaxed
+Test run at 2018-11-05 17:32
+
+model file: ../../../models/W/PIP_W_4BBL/model.py
+============================================================
+import juliaimport
+import julip
+import os
+import glob
+
+"""
+pwd = os.getcwd()
+
+
+os.chdir(model_dir)
+
+json_file = glob.glob("*.json")[0]
+
+os.chdir(pwd)
+"""
+
+#IP = juliaimport.import_IP(model_dir + "/{0}".format(json_file))
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/W_4BBL_2s_med.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/W/surface-energy-100-relaxed/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+from ase.lattice.cubic import BodyCenteredCubic
+
+import ase.io, sys
+
+import numpy as np
+# from pylab import *
+
+# set of utility routines specific this this model/testing framework
+from utilities import relax_atoms, relax_atoms_cell
+
+# the current model
+import model
+
+a0 = 3.16 # initial guess at lattice constant, cell will be relaxed below
+fmax = 0.002 # maximum force following relaxtion [eV/A]
+
+# if not hasattr(model, 'bulk_reference'):
+
+# set up the a
+bulk = BodyCenteredCubic(symbol='W', latticeconstant=a0, directions=[[1,1,0],[-1,1,0],[0,0,1]])
+
+# specify that we will use model.calculator to compute forces, energies and stresses
+bulk.set_calculator(model.calculator)
+
+# use one of the routines from utilities module to relax the initial
+# unit cell and atomic positions
+bulk = relax_atoms_cell(bulk, tol=fmax, traj_file=None)
+
+# else:
+    # bulk = model.bulk_reference.copy()
+    # bulk.set_calculator(model.calculator)    
+
+# set up supercell
+big_bulk = bulk*(1,1,10)
+big_bulk.set_calculator(model.calculator)
+
+def surface_energy(bulk):
+    Nat = bulk.get_number_of_atoms()
+
+    # relax atom positions, holding cell fixed
+    # vac = relax_atoms(vac, fmax=fmax)
+
+    # compute surface formation energy as half the difference of bulk and expanded cell
+    print "len(bulk)",len(bulk)
+    ebulk = bulk.get_potential_energy()
+    print 'bulk cell energy', ebulk
+
+    bulk.cell[2,:] += [0.0,0.0,10.0]
+
+    ase.io.write(sys.stdout, bulk, format='extxyz')
+
+    # relax expanded cell
+    bulk = relax_atoms(bulk, tol=fmax, method='lbfgs', traj_file="model-"+model.name+"-surface-energy-100-relaxed.opt.xyz", use_armijo=False)
+    eexp  = bulk.get_potential_energy()
+
+    ase.io.write(sys.stdout, bulk, format='extxyz')
+
+    print 'expanded cell energy', eexp
+    e_form = 0.5*(eexp - ebulk) / np.linalg.norm(np.cross(bulk.cell[0,:],bulk.cell[1,:]))
+
+    print 'relaxed 100 surface formation energy', e_form
+    return e_form
+
+# dictionary of computed properties - this is output of this test, to
+#   be compared with other models
+E = surface_energy(big_bulk)
+properties = {'surface_energy_100_relaxed': E }
+============================================================
+relax_atoms_cell using method lbfgs
+/Users/Cas/.local/lib/python2.7/site-packages/ase/atoms.py:763: UserWarning: Converting 3x3 stress tensor from JulipCalculator calculator to the required Voigt form.
+  'calculator to the required Voigt form.')
+PreconLBFGS:   0  17:33:13      -44.774224       0.0000       0.0315
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   1  17:33:13      -44.783217       0.0000       0.0219
+INFO:ase.utils.linesearcharmijo:a1 = 1.000, suff_dec = True
+PreconLBFGS:   2  17:33:13      -44.791619       0.0000       0.0007
+len(bulk) 40
+bulk cell energy -447.916193795
+40
+Lattice="4.495185620847397 9.416397434504722e-12 -1.0842421409405081e-11 9.416397434351217e-12 4.495185620459693 -3.999989644366174e-11 -7.666749703058817e-11 -2.828419802701363e-10 41.78576235273952" Properties=species:S:1:pos:R:3:Z:I:1 energy=-447.916193795 pbc="T T T"
+W       0.00000000       0.00000000      -0.00000000       74 
+W      -0.00000000       2.24759281       1.58928812       74 
+W       2.24759281       2.24759281       0.00000000       74 
+W       2.24759281       0.00000000       1.58928812       74 
+W       0.00000000       0.00000000       3.17857623       74 
+W      -0.00000000       2.24759281       4.76786435       74 
+W       2.24759281       2.24759281       3.17857624       74 
+W       2.24759281       0.00000000       4.76786435       74 
+W      -0.00000000       0.00000000       6.35715247       74 
+W      -0.00000000       2.24759281       7.94644059       74 
+W       2.24759281       2.24759281       6.35715247       74 
+W       2.24759281       0.00000000       7.94644059       74 
+W      -0.00000000       0.00000000       9.53572871       74 
+W      -0.00000000       2.24759281      11.12501682       74 
+W       2.24759281       2.24759281       9.53572871       74 
+W       2.24759281       0.00000000      11.12501682       74 
+W      -0.00000000       0.00000000      12.71430494       74 
+W      -0.00000000       2.24759281      14.30359306       74 
+W       2.24759281       2.24759281      12.71430494       74 
+W       2.24759281       0.00000000      14.30359306       74 
+W      -0.00000000       0.00000000      15.89288118       74 
+W      -0.00000000       2.24759281      17.48216929       74 
+W       2.24759281       2.24759281      15.89288118       74 
+W       2.24759281       0.00000000      17.48216929       74 
+W      -0.00000000       0.00000000      19.07145741       74 
+W      -0.00000000       2.24759281      20.66074553       74 
+W       2.24759281       2.24759281      19.07145741       74 
+W       2.24759281       0.00000000      20.66074553       74 
+W      -0.00000000       0.00000000      22.25003365       74 
+W      -0.00000000       2.24759281      23.83932176       74 
+W       2.24759281       2.24759281      22.25003365       74 
+W       2.24759281       0.00000000      23.83932176       74 
+W      -0.00000000       0.00000000      25.42860988       74 
+W      -0.00000000       2.24759281      27.01789800       74 
+W       2.24759281       2.24759281      25.42860988       74 
+W       2.24759281       0.00000000      27.01789800       74 
+W      -0.00000000       0.00000000      28.60718612       74 
+W      -0.00000000       2.24759281      30.19647423       74 
+W       2.24759281       2.24759281      28.60718612       74 
+W       2.24759281       0.00000000      30.19647424       74 
+PreconLBFGS:   0  17:33:15     -437.538989       1.3178
+PreconLBFGS:   1  17:33:16     -437.929865       0.5656
+PreconLBFGS:   2  17:33:17     -437.980989       0.2993
+PreconLBFGS:   3  17:33:18     -437.999540       0.1755
+PreconLBFGS:   4  17:33:18     -438.004088       0.0898
+PreconLBFGS:   5  17:33:19     -438.006658       0.0718
+PreconLBFGS:   6  17:33:20     -438.008807       0.0572
+PreconLBFGS:   7  17:33:20     -438.010151       0.0472
+PreconLBFGS:   8  17:33:21     -438.010853       0.0428
+PreconLBFGS:   9  17:33:22     -438.011574       0.0333
+PreconLBFGS:  10  17:33:23     -438.012154       0.0219
+PreconLBFGS:  11  17:33:24     -438.012299       0.0160
+PreconLBFGS:  12  17:33:25     -438.012458       0.0252
+PreconLBFGS:  13  17:33:27     -438.012839       0.0228
+PreconLBFGS:  14  17:33:28     -438.013621       0.0357
+PreconLBFGS:  15  17:33:29     -438.013968       0.0168
+PreconLBFGS:  16  17:33:31     -438.014043       0.0018
+40
+Lattice="4.495185620847397 9.416397434504722e-12 -1.0842421409405081e-11 9.416397434351217e-12 4.495185620459693 -3.999989644366174e-11 -7.666749703058817e-11 -2.828419802701363e-10 41.78576235273952" Properties=species:S:1:pos:R:3:Z:I:1 energy=-438.014043467 pbc="T T T"
+W       0.00000002       0.00000014       0.14067783       74 
+W      -0.00000000       2.24759282       1.55568749       74 
+W       2.24759279       2.24759267       0.14067782       74 
+W       2.24759281      -0.00000001       1.55568749       74 
+W       0.00000000       0.00000001       3.19230479       74 
+W       0.00000000       2.24759281       4.76592799       74 
+W       2.24759281       2.24759280       3.19230479       74 
+W       2.24759281      -0.00000000       4.76592800       74 
+W       0.00000000       0.00000000       6.36053693       74 
+W      -0.00000000       2.24759281       7.94754216       74 
+W       2.24759281       2.24759281       6.36053693       74 
+W       2.24759281       0.00000000       7.94754216       74 
+W      -0.00000000      -0.00000000       9.53707871       74 
+W      -0.00000000       2.24759281      11.12590612       74 
+W       2.24759281       2.24759281       9.53707871       74 
+W       2.24759281       0.00000000      11.12590612       74 
+W       0.00000000       0.00000000      12.71481650       74 
+W       0.00000000       2.24759281      14.30374236       74 
+W       2.24759281       2.24759281      12.71481650       74 
+W       2.24759281      -0.00000000      14.30374236       74 
+W       0.00000000      -0.00000000      15.89273188       74 
+W       0.00000000       2.24759281      17.48165773       74 
+W       2.24759281       2.24759281      15.89273188       74 
+W       2.24759281      -0.00000000      17.48165773       74 
+W       0.00000000      -0.00000000      19.07056812       74 
+W       0.00000000       2.24759281      20.65939553       74 
+W       2.24759281       2.24759281      19.07056812       74 
+W       2.24759281      -0.00000000      20.65939552       74 
+W       0.00000000      -0.00000000      22.24893207       74 
+W       0.00000000       2.24759281      23.83593731       74 
+W       2.24759281       2.24759281      22.24893208       74 
+W       2.24759281      -0.00000000      23.83593731       74 
+W      -0.00000000      -0.00000000      25.43054624       74 
+W      -0.00000000       2.24759280      27.00416944       74 
+W       2.24759281       2.24759281      25.43054624       74 
+W       2.24759281       0.00000002      27.00416944       74 
+W      -0.00000000      -0.00000001      28.64078675       74 
+W      -0.00000000       2.24759253      30.05579641       74 
+W       2.24759281       2.24759282      28.64078674       74 
+W       2.24759281       0.00000027      30.05579641       74 
+expanded cell energy -438.014043467
+relaxed 100 surface formation energy 0.24502153702099047
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'surface_energy_100_relaxed': '0.24502153702099047'}
+============================================================

@@ -1,0 +1,9 @@
+Model PIP_vc16_reg, Test burgers_path
+Test run at 2018-11-08 22:46
+
+model file: ../../../models/Ti/PIP_vc16_reg/model.py
+============================================================
+Traceback (most recent call last):
+  File "run-model-test-cas.py", line 82, in <module>
+    sys.stdout.write(open(model_file).read())
+IOError: [Errno 2] No such file or directory: '../../../models/Ti/PIP_vc16_reg/model.py'

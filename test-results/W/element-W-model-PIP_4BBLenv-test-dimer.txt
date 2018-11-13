@@ -1,0 +1,88 @@
+Model PIP_4BBLenv, Test dimer
+Test run at 2018-11-10 19:02
+
+model file: ../../../models/W/PIP_4BBLenv/model.py
+============================================================
+import juliaimport
+import julip
+import os
+import glob
+
+"""
+pwd = os.getcwd()
+
+
+os.chdir(model_dir)
+
+json_file = glob.glob("*.json")[0]
+
+os.chdir(pwd)
+"""
+
+#IP = juliaimport.import_IP(model_dir + "/{0}".format(json_file))
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/W_4BBLenv_med.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/W/dimer/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+from ase import Atoms
+import model
+import numpy as np
+from ase.lattice.cubic import BodyCenteredCubic
+
+single_atom = Atoms('W', cell=[[20,0,0],[0,20,0],[0,0,20]])
+single_atom.set_calculator(model.calculator)
+e0 = single_atom.get_potential_energy()
+
+a0 = 3.16 
+bulk = BodyCenteredCubic(symbol='W', latticeconstant=a0)
+rnn = np.linalg.norm(bulk.positions[1])
+
+dimer = Atoms('W2',
+               positions=[[0, 0, 0],
+                          [0, 0, 1.5]], cell=[[20,0,0],[0,20,0],[0,0,20]])
+
+
+dimer.set_calculator(model.calculator)
+
+    
+p = dimer.get_positions()
+e = []
+rr = []
+
+for r in np.arange(2,7.0,0.1):
+    p[1,2] = r
+    dimer.set_positions(p)
+    e.append(dimer.get_potential_energy() - (2*e0))
+    rr.append(r)
+
+properties = {'dimer distance':rr, 'dimer energy': e, 'rnn' : rnn}
+============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'dimer energy': [-29.793974029243607, -6.415688919246811, -4.752893695951123, -7.559254614979643, -7.297074953437466, -4.530729386367518, -2.234306664549429, -0.37502449040176344, 1.3460101037112437, 2.7208736174566113, 3.805652795016151, 4.714766866184156, 5.330281260720305, 5.488443974862541, 5.2208594917306, 4.740174285866026, 4.269355894560697, 3.9133973661887396, 3.6470482949690037, 3.3779198786174067, 3.037273180745334, 2.6601983547502623, 2.314768602728229, 2.048485707148295, 1.8812783785456233, 1.7991817143106275, 1.7634604960971885, 1.7268255451986008, 1.648582664906364, 1.504067781503629, 1.2873931523704343, 1.0089649177448266, 0.6901775043283962, 0.3575178614178114, 0.03757952980821955, -0.2463456542404927, -0.4728014727529697, -0.621670124930013, -0.6843642827530019, -0.663964870205298, -0.5737193411855586, -0.43453487869692964, -0.27176182192625475, -0.11154232161926103, 0.022943523267251464, 0.1149022832164448, 0.15650928869444414, 0.15012847639308546, 0.10775196221083405, 0.048451665691111145], 'dimer distance': ['2.0', '2.1', '2.2', '2.3000000000000003', '2.4000000000000004', '2.5000000000000004', '2.6000000000000005', '2.7000000000000006', '2.8000000000000007', '2.900000000000001', '3.000000000000001', '3.100000000000001', '3.200000000000001', '3.300000000000001', '3.4000000000000012', '3.5000000000000013', '3.6000000000000014', '3.7000000000000015', '3.8000000000000016', '3.9000000000000017', '4.000000000000002', '4.100000000000001', '4.200000000000002', '4.3000000000000025', '4.400000000000002', '4.500000000000002', '4.600000000000002', '4.700000000000003', '4.8000000000000025', '4.900000000000002', '5.000000000000003', '5.100000000000003', '5.200000000000003', '5.3000000000000025', '5.400000000000003', '5.5000000000000036', '5.600000000000003', '5.700000000000003', '5.800000000000003', '5.900000000000004', '6.0000000000000036', '6.100000000000003', '6.200000000000004', '6.300000000000004', '6.400000000000004', '6.5000000000000036', '6.600000000000004', '6.700000000000005', '6.800000000000004', '6.900000000000004'], 'rnn': '2.7366402759588264'}
+============================================================

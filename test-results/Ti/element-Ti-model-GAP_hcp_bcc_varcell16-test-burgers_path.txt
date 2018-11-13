@@ -1,0 +1,71 @@
+Model GAP_hcp_bcc_varcell16, Test burgers_path
+Test run at 2018-10-28 15:12
+
+model file: ../../../models/Ti/GAP_hcp_bcc_varcell16/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_6_26_60_20_15_36_820"',
+                                               param_filename='gp_4b_no_wire_surface.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_10_27_60_19_51_26_857"', param_filename='gp_soap_hcp_bcc_varcell_k16_v2.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Ti/burgers_path/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+ats = ase.io.read(os.path.join(os.path.dirname(__file__),"burgers_path.xyz"),":")
+Es = []
+for at in ats:
+    # e0 = at.get_potential_energy()
+    e0 = 0.0
+    at.set_calculator(model.calculator)
+    e = at.get_potential_energy()/len(at)
+    Es.append((e0, e))
+properties = {'E_orig_E' : Es}
+============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'E_orig_E': [(0.0, -5.994525627593629), (0.0, -5.9948581182490805), (0.0, -5.995120757949705), (0.0, -5.995309989276095), (0.0, -5.995420171129855), (0.0, -5.9954588315585005), (0.0, -5.995442725064562), (0.0, -5.995380483892639), (0.0, -5.995275678003946), (0.0, -5.995132292580552), (0.0, -5.994955994382075), (0.0, -5.994750955369927), (0.0, -5.9945210938589035), (0.0, -5.994270241553837), (0.0, -5.994002105143108), (0.0, -5.993720225519888), (0.0, -5.993427936193779), (0.0, -5.993128550733744), (0.0, -5.992825339502576), (0.0, -5.992520932590097), (0.0, -5.992217557675026), (0.0, -5.991917080765644), (0.0, -5.991620995510693), (0.0, -5.991330008141432), (0.0, -5.991040553903652), (0.0, -5.990754374942335), (0.0, -5.990476120837146), (0.0, -5.990212649061618), (0.0, -5.989968918216558), (0.0, -5.989748133135783), (0.0, -5.989748133135783), (0.0, -5.990275316752312), (0.0, -5.990602506013284), (0.0, -5.990728664625401), (0.0, -5.9907091092182405), (0.0, -5.99062398676706), (0.0, -5.9905676879535115), (0.0, -5.990649618521479), (0.0, -5.990994478129977), (0.0, -5.991736606028187), (0.0, -5.993010231757362), (0.0, -5.994936226813399), (0.0, -5.997607209749097), (0.0, -6.00107260397746), (0.0, -6.005327621862425), (0.0, -6.01030753668204), (0.0, -6.015889495562411), (0.0, -6.021901653744529), (0.0, -6.028135978155599), (0.0, -6.034367705102885), (0.0, -6.040381984596566), (0.0, -6.045980309766959), (0.0, -6.050987914439062), (0.0, -6.055259554764451), (0.0, -6.058757141336496), (0.0, -6.06171749416934), (0.0, -6.064113321975519), (0.0, -6.0658859641784595), (0.0, -6.066982548229411), (0.0, -6.067357044560406)]}
+============================================================

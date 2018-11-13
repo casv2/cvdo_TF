@@ -1,0 +1,60 @@
+Model PIP_vc16_r2, Test burgers_path
+Test run at 2018-11-01 16:53
+
+model file: ../../../models/Ti/PIP_vc16_r2/model.py
+============================================================
+import juliaimport
+import julip
+import os
+
+model_dir = os.path.dirname(os.path.realpath(__file__))
+IP = juliaimport.import_IP(model_dir + "/Ti_hcp_bcc_varcell_k16_rt2.json")
+
+#IP = juliaimport.import_IP(os.path.realpath(__file__)[0:-8] + "Ti_4B_med.json")
+ASE_IP = julip.JulipCalculator("IP")
+
+calculator = ASE_IP
+
+no_checkpoint = True
+
+name = 'PIP'
+============================================================
+test file: ../../../tests/Ti/burgers_path/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS:
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+# standard ASE structure generation routines
+
+import ase.io, os
+
+# set of utility routines specific this this model/testing framework
+
+# the current model
+import model
+
+ats = ase.io.read(os.path.join(os.path.dirname(__file__),"burgers_path.xyz"),":")
+Es = []
+for at in ats:
+    # e0 = at.get_potential_energy()
+    e0 = 0.0
+    at.set_calculator(model.calculator)
+    e = at.get_potential_energy()/len(at)
+    Es.append((e0, e))
+properties = {'E_orig_E' : Es}
+============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'E_orig_E': [(0.0, -5.996054304028426), (0.0, -5.996380028932727), (0.0, -5.996621373794746), (0.0, -5.996767136634702), (0.0, -5.9968234431567), (0.0, -5.996799712873695), (0.0, -5.996692745409476), (0.0, -5.996511148274429), (0.0, -5.996264052074515), (0.0, -5.995959082302043), (0.0, -5.995607257523751), (0.0, -5.995218666836749), (0.0, -5.994808805595369), (0.0, -5.994374082231758), (0.0, -5.993945539618476), (0.0, -5.993509563425299), (0.0, -5.9930700054882), (0.0, -5.992642795211111), (0.0, -5.992195223014967), (0.0, -5.9917372615105435), (0.0, -5.991249013495157), (0.0, -5.990716808150175), (0.0, -5.990109666001175), (0.0, -5.9894354135024415), (0.0, -5.9886777330962815), (0.0, -5.987803868497451), (0.0, -5.986806713271598), (0.0, -5.985637323381635), (0.0, -5.984265685071087), (0.0, -5.982642630286744), (0.0, -5.982642630286744), (0.0, -5.984088074282102), (0.0, -5.985962348527433), (0.0, -5.988274009568272), (0.0, -5.991032365714094), (0.0, -5.994210988306548), (0.0, -5.997751820604073), (0.0, -6.001597636254239), (0.0, -6.005660337565821), (0.0, -6.0098556005782555), (0.0, -6.014081718216012), (0.0, -6.018298343902437), (0.0, -6.022441482492688), (0.0, -6.026465492964547), (0.0, -6.030377293094361), (0.0, -6.034267566902532), (0.0, -6.038112231625746), (0.0, -6.041857768151978), (0.0, -6.045470303825603), (0.0, -6.048907047001915), (0.0, -6.052150840708304), (0.0, -6.055167860302312), (0.0, -6.057933735352492), (0.0, -6.060422732065405), (0.0, -6.062609201488716), (0.0, -6.064459921478992), (0.0, -6.06594934166133), (0.0, -6.067048479466628), (0.0, -6.067722358790238), (0.0, -6.067963384016146)]}
+============================================================

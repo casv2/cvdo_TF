@@ -1,0 +1,85 @@
+Model GAP_vc16_r2_ss, Test dimer
+Test run at 2018-11-05 16:56
+
+model file: ../../../models/Ti/GAP_vc16_r2_ss/model.py
+============================================================
+import os
+
+from quippy import Potential
+import __builtin__
+
+orig_dir = os.getcwd()
+model_dir = os.path.dirname(__file__)
+if model_dir != '':
+    os.chdir(model_dir)
+
+if os.path.exists('gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2'):
+    os.system('bunzip2 gp_iter6_sparse9k.xml.sparseX.GAP_2017_6_17_60_4_3_56_1651.bz2')
+
+try:
+    if hasattr(__builtin__, 'mpi_glob'):
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_6_26_60_20_15_36_820"',
+                                               param_filename='gp_4b_no_wire_surface.xml', mpi_obj=mpi_glob)
+    else:
+        calculator = Potential(init_args='Potential xml_label="GAP_2018_11_5_0_16_41_1_140"', param_filename='gp_soap_hcp_bcc_varcell_k16_rt2_ss.xml')
+    Potential.__str__ = lambda self: '<GAP Potential>'
+finally:
+    os.chdir(orig_dir)
+
+no_checkpoint = True
+
+name = 'GAP'
+============================================================
+test file: ../../../tests/Ti/dimer/test.py
+============================================================
+# This script defines a test case which computes one or more physical
+# properties with a given model
+#
+# INPUTS: 
+#   model.calculator -- an ase.calculator.Calculator instance
+#     this script can assume the calculator is checkpointed.
+#
+# OUTPUTS:
+#   properties -- dictionary of key/value pairs corresponding
+#     to physical quantities computed by this test
+
+from ase import Atoms
+import model
+import numpy as np
+from ase.lattice.cubic import BodyCenteredCubic
+
+single_atom = Atoms('Ti', cell=[[20,0,0],[0,20,0],[0,0,20]])
+single_atom.set_calculator(model.calculator)
+e0 = single_atom.get_potential_energy()
+
+a0 = 3.32
+
+bulk = BodyCenteredCubic(symbol='Ti', latticeconstant=a0)
+rnn = np.linalg.norm(bulk.positions[1])
+
+dimer = Atoms('Ti2',
+               positions=[[0, 0, 0],
+                          [0, 0, 1.5]], cell=[[20,0,0],[0,20,0],[0,0,20]])
+
+
+dimer.set_calculator(model.calculator)
+
+    
+p = dimer.get_positions()
+e = []
+rr = []
+
+for r in np.arange(2,7.0,0.1):
+    p[1,2] = r
+    dimer.set_positions(p)
+    e.append(dimer.get_potential_energy() - (2*e0))
+    rr.append(r)
+
+properties = {'dimer distance':rr, 'dimer energy': e, 'rnn' : rnn}============================================================
+============================================================
+Property calculation output:
+
+
+Summary of computed properties:
+{'dimer energy': [0.3332475789157172, 0.40914494516709254, 0.4927872446398389, 0.5858448658272808, 0.6892088892731838, 0.8011712680526717, 0.9162332030214664, 1.025748985764805, 1.120470689553004, 1.1933844565415956, 1.2410394694091735, 1.2631218101977346, 1.2613211769079546, 1.2383898981132635, 1.197552814615138, 1.1421006059921632, 1.025111860309753, 0.8635776294237401, 0.7310089061729563, 0.6411399152444694, 0.5801868306249229, 0.5259045650275507, 0.4660377778420326, 0.40170660553362936, 0.3341301152330054, 0.264606994423664, 0.19449354224165738, 0.1251769067812365, 0.058042041196305405, -0.005568116707499016, -0.06439836309574609, -0.1173304900348704, -0.16343243008116382, -0.20200274696124687, -0.2326056845840867, -0.2550924526745799, -0.269605580830806, -0.27656486446069906, -0.2766354120725829, -0.2706802881802979, -0.2597019341182989, -0.24477769600989063, -0.22699524241633107, -0.20739337562421412, -0.1869128073598958, -0.1663600549505393, -0.14638595074301186, -0.1274785955774682, -0.10996914949329195, -0.09404780235883514], 'dimer distance': ['2.0', '2.1', '2.2', '2.3000000000000003', '2.4000000000000004', '2.5000000000000004', '2.6000000000000005', '2.7000000000000006', '2.8000000000000007', '2.900000000000001', '3.000000000000001', '3.100000000000001', '3.200000000000001', '3.300000000000001', '3.4000000000000012', '3.5000000000000013', '3.6000000000000014', '3.7000000000000015', '3.8000000000000016', '3.9000000000000017', '4.000000000000002', '4.100000000000001', '4.200000000000002', '4.3000000000000025', '4.400000000000002', '4.500000000000002', '4.600000000000002', '4.700000000000003', '4.8000000000000025', '4.900000000000002', '5.000000000000003', '5.100000000000003', '5.200000000000003', '5.3000000000000025', '5.400000000000003', '5.5000000000000036', '5.600000000000003', '5.700000000000003', '5.800000000000003', '5.900000000000004', '6.0000000000000036', '6.100000000000003', '6.200000000000004', '6.300000000000004', '6.400000000000004', '6.5000000000000036', '6.600000000000004', '6.700000000000005', '6.800000000000004', '6.900000000000004'], 'rnn': '2.8752043405643364'}
+============================================================
